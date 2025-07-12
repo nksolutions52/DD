@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
+import { PageRequest } from '../types';
 
 interface UseApiOptions<T> {
   initialData?: T;
@@ -39,7 +40,7 @@ export function useApi<T>(
 }
 
 export function useUsers() {
-  return useApi(() => api.users.getAll());
+  return useApi(() => api.users.getAll() as Promise<any[]>);
 }
 
 export function useDentists() {
@@ -59,7 +60,7 @@ export function useRole(id: number) {
 }
 
 export function usePatients() {
-  return useApi(() => api.patients.getAll());
+  return useApi(() => api.patients.getAll() as Promise<any[]>);
 }
 
 export function usePatient(id: number) {
@@ -67,7 +68,7 @@ export function usePatient(id: number) {
 }
 
 export function useAppointments() {
-  return useApi(() => api.appointments.getAll());
+  return useApi(() => api.appointments.getAll() as Promise<any[]>);
 }
 
 export function useAppointmentsByDate(date: string) {
@@ -87,7 +88,7 @@ export function useAppointmentsByPatient(patientId: number) {
 }
 
 export function useMedicines() {
-  return useApi(() => api.medicines.getAll());
+  return useApi(() => api.medicines.getAll() as Promise<any[]>);
 }
 
 export function useMedicine(id: number) {

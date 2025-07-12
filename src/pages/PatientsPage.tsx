@@ -1,35 +1,33 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Search, Filter, UserPlus, Eye } from 'lucide-react';
-import { Patient } from '../types';
+import { Patient, PageRequest } from '../types';
 import PatientForm from '../components/patients/PatientForm';
 import Pagination from '../components/common/Pagination';
-import { usePatients } from '../hooks/useApi';
+import { usePaginatedApi } from '../hooks/usePaginatedApi';
 import { usePageHeader } from '../hooks/usePageHeader';
 import api from '../services/api';
 
-const ITEMS_PER_PAGE = 10;
-
 const PatientsPage = () => {
-  const { data: patients = [], isLoading, error, refetch } = usePatients();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [showForm, setShowForm] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-
-  // Filter patients based on search term
-  const filteredPatients = patients.filter((patient: any) => {
-    const fullName = `${patient.firstName} ${patient.lastName}`.toLowerCase();
-    return (
-      fullName.includes(searchTerm.toLowerCase()) ||
-      patient.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      patient.phone.includes(searchTerm)
-    );
+  const {
+    data: paginatedData,
+    isLoading,
+    error,
+    pageRequest,
+    setPage,
+    setSearch,
+    refetch,
+  } = usePaginatedApi((pageRequest: PageRequest) => api.patients.getAll(pageRequest), {
+    initialPageSize: 10,
+    initialSortBy: 'firstName',
+    initialSortDirection: 'asc',
   });
 
-  // Calculate pagination
-  const totalPages = Math.ceil(filteredPatients.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const paginatedPatients = filteredPatients.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const [showForm, setShowForm] = useState(false);
+
+  const patients = paginatedData?.content || [];
+  const totalPages = paginatedData?.totalPages || 0;
+  const currentPage = (paginatedData?.page || 0) + 1; // Convert from 0-based to 1-based
 
   // Set page header with actions
   usePageHeader({
@@ -58,8 +56,12 @@ const PatientsPage = () => {
   };
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+    setPage(page - 1); // Convert from 1-based to 0-based
     window.scrollTo(0, 0);
+  };
+
+  const handleSearchChange = (searchTerm: string) => {
+    setSearch(searchTerm);
   };
 
   if (isLoading) {
@@ -93,11 +95,8 @@ const PatientsPage = () => {
             type="text"
             className="input pl-10 sm:pl-12 w-full"
             placeholder="Search patients by name, email, or phone..."
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setCurrentPage(1); // Reset to first page on search
-            }}
+            value={pageRequest.search || ''}
+            onChange={(e) => handleSearchChange(e.target.value)}
           />
         </div>
         <button className="btn btn-outline flex items-center justify-center w-full md:w-auto">
@@ -110,9 +109,9 @@ const PatientsPage = () => {
       <div className="overflow-hidden rounded-xl sm:rounded-2xl border border-neutral-200 bg-white shadow-xl">
         {/* Mobile Card View */}
         <div className="block lg:hidden">
-          {paginatedPatients.length > 0 ? (
+          {patients.length > 0 ? (
             <div className="divide-y divide-neutral-200">
-              {paginatedPatients.map((patient: any) => (
+              {patients.map((patient: any) => (
                 <div key={patient.id} className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex-1 min-w-0">
@@ -144,7 +143,7 @@ const PatientsPage = () => {
           ) : (
             <div className="p-6 sm:p-12 text-center text-sm text-neutral-500">
               No patients found
-              {searchTerm ? (
+              {pageRequest.search ? (
                 <div className="mt-2 text-neutral-400">
                   Try adjusting your search criteria.
                 </div>
@@ -189,8 +188,8 @@ const PatientsPage = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-200">
-              {paginatedPatients.length > 0 ? (
-                paginatedPatients.map((patient: any) => (
+              {patients.length > 0 ? (
+                patients.map((patient: any) => (
                   <tr key={patient.id} className="hover:bg-neutral-50 transition rounded-xl">
                     <td className="whitespace-nowrap px-4 xl:px-6 py-4 font-medium text-neutral-900">
                       {patient.firstName} {patient.lastName}
@@ -225,7 +224,7 @@ const PatientsPage = () => {
                 <tr>
                   <td colSpan={6} className="px-6 py-12 text-center text-sm text-neutral-500">
                     No patients found
-                    {searchTerm ? (
+                    {pageRequest.search ? (
                       <div className="mt-2 text-neutral-400">
                         Try adjusting your search criteria.
                       </div>
@@ -248,7 +247,7 @@ const PatientsPage = () => {
         </div>
 
         {/* Pagination */}
-        {filteredPatients.length > 0 && totalPages > 1 && (
+        {patients.length > 0 && totalPages > 1 && (
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-4 py-3 border-t border-neutral-200">
             <div className="mb-2 sm:mb-0">
               <Pagination

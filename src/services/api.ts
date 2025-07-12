@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { PageRequest, PageResponse } from '../types';
 
 const api = axios.create({
   // baseURL: 'http://localhost:8080/api',
@@ -66,7 +67,18 @@ export const roles = {
 };
 
 export const users = {
-  getAll: async () => {
+  getAll: async (pageRequest?: PageRequest): Promise<PageResponse<any> | any[]> => {
+    if (pageRequest) {
+      const params = new URLSearchParams({
+        page: pageRequest.page.toString(),
+        size: pageRequest.size.toString(),
+        ...(pageRequest.sortBy && { sortBy: pageRequest.sortBy }),
+        ...(pageRequest.sortDirection && { sortDirection: pageRequest.sortDirection }),
+        ...(pageRequest.search && { search: pageRequest.search }),
+      });
+      const response = await api.get(`/users?${params}`);
+      return response.data;
+    }
     const response = await api.get('/users');
     return response.data;
   },
@@ -92,7 +104,18 @@ export const users = {
 };
 
 export const patients = {
-  getAll: async () => {
+  getAll: async (pageRequest?: PageRequest): Promise<PageResponse<any> | any[]> => {
+    if (pageRequest) {
+      const params = new URLSearchParams({
+        page: pageRequest.page.toString(),
+        size: pageRequest.size.toString(),
+        ...(pageRequest.sortBy && { sortBy: pageRequest.sortBy }),
+        ...(pageRequest.sortDirection && { sortDirection: pageRequest.sortDirection }),
+        ...(pageRequest.search && { search: pageRequest.search }),
+      });
+      const response = await api.get(`/patients?${params}`);
+      return response.data;
+    }
     const response = await api.get('/patients');
     return response.data;
   },
@@ -129,7 +152,18 @@ export const patients = {
 };
 
 export const appointments = {
-  getAll: async () => {
+  getAll: async (pageRequest?: PageRequest): Promise<PageResponse<any> | any[]> => {
+    if (pageRequest) {
+      const params = new URLSearchParams({
+        page: pageRequest.page.toString(),
+        size: pageRequest.size.toString(),
+        ...(pageRequest.sortBy && { sortBy: pageRequest.sortBy }),
+        ...(pageRequest.sortDirection && { sortDirection: pageRequest.sortDirection }),
+        ...(pageRequest.search && { search: pageRequest.search }),
+      });
+      const response = await api.get(`/appointments?${params}`);
+      return response.data;
+    }
     const response = await api.get('/appointments');
     return response.data;
   },
@@ -167,7 +201,18 @@ export const appointments = {
 };
 
 export const medicines = {
-  getAll: async () => {
+  getAll: async (pageRequest?: PageRequest): Promise<PageResponse<any> | any[]> => {
+    if (pageRequest) {
+      const params = new URLSearchParams({
+        page: pageRequest.page.toString(),
+        size: pageRequest.size.toString(),
+        ...(pageRequest.sortBy && { sortBy: pageRequest.sortBy }),
+        ...(pageRequest.sortDirection && { sortDirection: pageRequest.sortDirection }),
+        ...(pageRequest.search && { search: pageRequest.search }),
+      });
+      const response = await api.get(`/medicines?${params}`);
+      return response.data;
+    }
     const response = await api.get('/medicines');
     return response.data;
   },

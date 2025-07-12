@@ -1,6 +1,8 @@
 package com.dentalcare.controller;
 
 import com.dentalcare.model.Appointment;
+import com.dentalcare.dto.PageRequest;
+import com.dentalcare.dto.PageResponse;
 import com.dentalcare.service.AppointmentService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +21,15 @@ public class AppointmentController {
     }
     
     @GetMapping
-    public List<Appointment> getAllAppointments() {
-        return appointmentService.getAllAppointments();
+    public PageResponse<Appointment> getAllAppointments(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "date") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDirection,
+            @RequestParam(defaultValue = "") String search) {
+        PageRequest pageRequest = new PageRequest(page, size, sortBy, sortDirection);
+        pageRequest.setSearch(search);
+        return appointmentService.getAllAppointments(pageRequest);
     }
     
     @GetMapping("/date/{date}")

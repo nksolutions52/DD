@@ -1,14 +1,13 @@
 import { useState } from 'react';
 import { Plus, Search, Edit, Trash2, User } from 'lucide-react';
-import { User as UserType, Role } from '../types';
+import { User as UserType, Role, PageRequest } from '../types';
 import Pagination from '../components/common/Pagination';
 import ConfirmDialog from '../components/common/ConfirmDialog';
 import AlertDialog from '../components/common/AlertDialog';
-import { useApi } from '../hooks/useApi';
+import { useApi, useRoles } from '../hooks/useApi';
+import { usePaginatedApi } from '../hooks/usePaginatedApi';
 import api from '../services/api';
 import { usePageHeader } from '../hooks/usePageHeader';
-
-const ITEMS_PER_PAGE = 10;
 
 interface UserFormData {
   name: string;
@@ -19,15 +18,30 @@ interface UserFormData {
 }
 
 const UsersPage = () => {
-  const { data: users = [], isLoading: isLoadingUsers, error: usersError, refetch: refetchUsers } = useApi(() => api.users.getAll());
-  const { data: roles = [], isLoading: isLoadingRoles } = useApi(() => api.roles.getAll());
+  const {
+    data: paginatedData,
+    isLoading: isLoadingUsers,
+    error: usersError,
+    pageRequest,
+    setPage,
+    setSearch,
+    refetch: refetchUsers,
+  } = usePaginatedApi((pageRequest: PageRequest) => api.users.getAll(pageRequest), {
+    initialPageSize: 10,
+    initialSortBy: 'name',
+    initialSortDirection: 'asc',
+  });
   
-  const [searchTerm, setSearchTerm] = useState('');
+  const { data: roles = [], isLoading: isLoadingRoles } = useRoles();
+  
   const [showForm, setShowForm] = useState(false);
   const [editingUser, setEditingUser] = useState<UserType | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const users = paginatedData?.content || [];
+  const totalPages = paginatedData?.totalPages || 0;
+  const currentPage = (paginatedData?.page || 0) + 1; // Convert from 0-based to 1-based
 
   // Dialog states
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -47,26 +61,18 @@ const UsersPage = () => {
     avatar: '',
   });
 
-  // Filter users based on search term
-  const filteredUsers = users.filter((user: UserType) =>
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.role.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  // Calculate pagination
-  const totalPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const paginatedUsers = filteredUsers.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-
   const showAlert = (type: 'success' | 'error' | 'warning' | 'info', title: string, message: string) => {
     setAlertConfig({ type, title, message });
     setShowAlertDialog(true);
   };
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+    setPage(page - 1); // Convert from 1-based to 0-based
     window.scrollTo(0, 0);
+  };
+
+  const handleSearchChange = (searchTerm: string) => {
+    setSearch(searchTerm);
   };
 
   const handleAddUser = () => {
@@ -226,11 +232,8 @@ const UsersPage = () => {
             type="text"
             className="input pl-10 sm:pl-12 w-full text-sm sm:text-base"
             placeholder="Search users..."
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setCurrentPage(1);
-            }}
+            value={pageRequest.search || ''}
+            onChange={(e) => handleSearchChange(e.target.value)}
           />
         </div>
       </div>
@@ -239,9 +242,9 @@ const UsersPage = () => {
       <div className="overflow-hidden rounded-xl sm:rounded-2xl border border-neutral-200 bg-white shadow-xl">
         {/* Mobile Card View */}
         <div className="block sm:hidden">
-          {paginatedUsers.length > 0 ? (
+          {users.length > 0 ? (
             <div className="divide-y divide-neutral-200">
-              {paginatedUsers.map((user: UserType) => (
+              {users.map((user: UserType) => (
                 <div key={user.id} className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3 flex-1 min-w-0">
@@ -323,8 +326,8 @@ const UsersPage = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-200">
-              {paginatedUsers.length > 0 ? (
-                paginatedUsers.map((user: UserType) => (
+              {users.length > 0 ? (
+                users.map((user: UserType) => (
                   <tr key={user.id} className="hover:bg-neutral-50 transition rounded-xl">
                     <td className="whitespace-nowrap px-4 lg:px-6 py-4">
                       <div className="flex items-center">
@@ -397,7 +400,7 @@ const UsersPage = () => {
         </div>
 
         {/* Pagination */}
-        {filteredUsers.length > 0 && totalPages > 1 && (
+        {users.length > 0 && totalPages > 1 && (
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-4 py-3 border-t border-neutral-200">
             <div className="mb-2 sm:mb-0">
               <Pagination

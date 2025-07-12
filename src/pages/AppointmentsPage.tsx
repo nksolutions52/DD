@@ -1,43 +1,45 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, Plus, Search, User, Eye, Pencil, X } from 'lucide-react';
-import { Appointment } from '../types';
+import { Appointment, PageRequest } from '../types';
 import AppointmentForm from '../components/appointments/AppointmentForm';
 import Pagination from '../components/common/Pagination';
-import { useAppointments } from '../hooks/useApi';
+import { usePaginatedApi } from '../hooks/usePaginatedApi';
 import { usePageHeader } from '../hooks/usePageHeader';
 import api from '../services/api';
 
-const ITEMS_PER_PAGE = 10;
-
 const AppointmentsPage = () => {
-  const { data: appointments = [], isLoading, error, refetch } = useAppointments();
-  const [searchTerm, setSearchTerm] = useState('');
+  const {
+    data: paginatedData,
+    isLoading,
+    error,
+    pageRequest,
+    setPage,
+    setSearch,
+    refetch,
+  } = usePaginatedApi((pageRequest: PageRequest) => api.appointments.getAll(pageRequest), {
+    initialPageSize: 10,
+    initialSortBy: 'date',
+    initialSortDirection: 'desc',
+  });
+
   const [statusFilter, setStatusFilter] = useState('all');
   const [showForm, setShowForm] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
   const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [appointmentToCancel, setAppointmentToCancel] = useState<Appointment | null>(null);
 
-  // Filter appointments based on search term and status filter
+  const appointments = paginatedData?.content || [];
+  const totalPages = paginatedData?.totalPages || 0;
+  const currentPage = (paginatedData?.page || 0) + 1; // Convert from 0-based to 1-based
+
+  // Filter appointments based on status filter (search is handled by backend)
   const filteredAppointments = appointments.filter((appointment:any) => {
-    const matchesSearch = appointment.patientName.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || appointment.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    return matchesStatus;
   });
 
-  // Sort appointments by date and time (most recent first)
-  const sortedAppointments = [...filteredAppointments].sort((a, b) => {
-    const dateA = new Date(`${a.date}T${a.startTime}`);
-    const dateB = new Date(`${b.date}T${b.startTime}`);
-    return dateB.getTime() - dateA.getTime();
-  });
-
-  // Calculate pagination
-  const totalPages = Math.ceil(sortedAppointments.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const paginatedAppointments = sortedAppointments.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const paginatedAppointments = filteredAppointments;
 
   // Set page header with actions
   usePageHeader({
@@ -106,8 +108,12 @@ const AppointmentsPage = () => {
   };
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+    setPage(page - 1); // Convert from 1-based to 0-based
     window.scrollTo(0, 0);
+  };
+
+  const handleSearchChange = (searchTerm: string) => {
+    setSearch(searchTerm);
   };
 
   if (isLoading) {
@@ -138,21 +144,15 @@ const AppointmentsPage = () => {
             type="text"
             className="input pl-10 sm:pl-12 w-full"
             placeholder="Search appointments..."
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setCurrentPage(1); // Reset to first page on search
-            }}
+            value={pageRequest.search || ''}
+            onChange={(e) => handleSearchChange(e.target.value)}
           />
         </div>
         <div className="w-full md:w-48">
           <select
             className="input w-full"
             value={statusFilter}
-            onChange={(e) => {
-              setStatusFilter(e.target.value);
-              setCurrentPage(1); // Reset to first page on filter change
-            }}
+            onChange={(e) => setStatusFilter(e.target.value)}
           >
             <option value="all">All Statuses</option>
             <option value="confirmed">Confirmed</option>
@@ -426,7 +426,7 @@ const AppointmentsPage = () => {
         </div>
 
         {/* Pagination */}
-        {filteredAppointments.length > 0 && totalPages > 1 && (
+        {paginatedAppointments.length > 0 && totalPages > 1 && (
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-4 py-3 border-t border-neutral-200">
             <div className="mb-2 sm:mb-0">
               <Pagination

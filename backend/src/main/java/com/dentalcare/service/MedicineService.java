@@ -1,8 +1,11 @@
 package com.dentalcare.service;
 
 import com.dentalcare.model.Medicine;
+import com.dentalcare.dto.PageRequest;
+import com.dentalcare.dto.PageResponse;
 import com.dentalcare.repository.MedicineRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
 import java.util.List;
 import java.util.Optional;
 import java.time.LocalDateTime;
@@ -13,6 +16,14 @@ public class MedicineService {
     
     public MedicineService(MedicineRepository medicineRepository) {
         this.medicineRepository = medicineRepository;
+    }
+    
+    public PageResponse<Medicine> getAllMedicines(PageRequest pageRequest) {
+        Page<Medicine> page = medicineRepository.findMedicinesWithSearch(
+            pageRequest.getSearch(), 
+            pageRequest.toSpringPageRequest()
+        );
+        return new PageResponse<>(page);
     }
     
     public List<Medicine> getAllMedicines() {

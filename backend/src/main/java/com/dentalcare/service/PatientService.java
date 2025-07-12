@@ -1,8 +1,11 @@
 package com.dentalcare.service;
 
 import com.dentalcare.model.Patient;
+import com.dentalcare.dto.PageRequest;
+import com.dentalcare.dto.PageResponse;
 import com.dentalcare.repository.PatientRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.SimpleMailMessage;
 
@@ -17,6 +20,14 @@ public class PatientService {
     public PatientService(PatientRepository patientRepository, JavaMailSender mailSender) {
         this.patientRepository = patientRepository;
         this.mailSender = mailSender;
+    }
+
+    public PageResponse<Patient> getAllPatients(PageRequest pageRequest) {
+        Page<Patient> page = patientRepository.findPatientsWithSearch(
+            pageRequest.getSearch(), 
+            pageRequest.toSpringPageRequest()
+        );
+        return new PageResponse<>(page);
     }
 
     public List<Patient> getAllPatients() {

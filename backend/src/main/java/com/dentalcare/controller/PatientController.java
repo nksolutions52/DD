@@ -1,6 +1,8 @@
 package com.dentalcare.controller;
 
 import com.dentalcare.model.Patient;
+import com.dentalcare.dto.PageRequest;
+import com.dentalcare.dto.PageResponse;
 import com.dentalcare.service.PatientService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,8 +18,15 @@ public class PatientController {
     }
     
     @GetMapping
-    public List<Patient> getAllPatients() {
-        return patientService.getAllPatients();
+    public PageResponse<Patient> getAllPatients(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDirection,
+            @RequestParam(defaultValue = "") String search) {
+        PageRequest pageRequest = new PageRequest(page, size, sortBy, sortDirection);
+        pageRequest.setSearch(search);
+        return patientService.getAllPatients(pageRequest);
     }
     
     @GetMapping("/{id}")

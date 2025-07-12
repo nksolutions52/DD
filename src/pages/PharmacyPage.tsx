@@ -1,29 +1,32 @@
 import { useState } from 'react';
 import { Plus, Search } from 'lucide-react';
-import { Medicine } from '../types';
+import { Medicine, PageRequest } from '../types';
 import MedicineForm from '../components/pharmacy/MedicineForm';
 import Pagination from '../components/common/Pagination';
-import { useMedicines } from '../hooks/useApi';
+import { usePaginatedApi } from '../hooks/usePaginatedApi';
 import { usePageHeader } from '../hooks/usePageHeader';
 import api from '../services/api';
 
-const ITEMS_PER_PAGE = 10;
-
 const PharmacyPage = () => {
-  const { data: medicines = [], isLoading, error, refetch } = useMedicines();
-  const [searchTerm, setSearchTerm] = useState('');
+  const {
+    data: paginatedData,
+    isLoading,
+    error,
+    pageRequest,
+    setPage,
+    setSearch,
+    refetch,
+  } = usePaginatedApi((pageRequest: PageRequest) => api.medicines.getAll(pageRequest), {
+    initialPageSize: 10,
+    initialSortBy: 'name',
+    initialSortDirection: 'asc',
+  });
+
   const [showForm, setShowForm] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
 
-  // Filter medicines based on search term
-  const filteredMedicines = medicines.filter((medicine) =>
-    medicine.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  // Calculate pagination
-  const totalPages = Math.ceil(filteredMedicines.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const paginatedMedicines = filteredMedicines.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const medicines = paginatedData?.content || [];
+  const totalPages = paginatedData?.totalPages || 0;
+  const currentPage = (paginatedData?.page || 0) + 1; // Convert from 0-based to 1-based
 
   // Set page header with actions
   usePageHeader({
@@ -52,8 +55,12 @@ const PharmacyPage = () => {
   };
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+    setPage(page - 1); // Convert from 1-based to 0-based
     window.scrollTo(0, 0);
+  };
+
+  const handleSearchChange = (searchTerm: string) => {
+    setSearch(searchTerm);
   };
 
   if (isLoading) {
@@ -84,11 +91,8 @@ const PharmacyPage = () => {
             type="text"
             className="input pl-10 sm:pl-12 w-full"
             placeholder="Search medicines..."
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setCurrentPage(1);
-            }}
+            value={pageRequest.search || ''}
+            onChange={(e) => handleSearchChange(e.target.value)}
           />
         </div>
       </div>
@@ -97,9 +101,9 @@ const PharmacyPage = () => {
       <div className="overflow-hidden rounded-xl sm:rounded-2xl border border-neutral-200 bg-white shadow-xl">
         {/* Mobile Card View */}
         <div className="block xl:hidden">
-          {paginatedMedicines.length > 0 ? (
+          {medicines.length > 0 ? (
             <div className="divide-y divide-neutral-200">
-              {paginatedMedicines.map((medicine) => (
+              {medicines.map((medicine) => (
                 <div key={medicine.id} className="p-4">
                   <div className="space-y-2">
                     <div className="flex items-start justify-between">
@@ -196,8 +200,8 @@ const PharmacyPage = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-200">
-              {paginatedMedicines.length > 0 ? (
-                paginatedMedicines.map((medicine) => (
+              {medicines.length > 0 ? (
+                medicines.map((medicine) => (
                   <tr key={medicine.id} className="hover:bg-neutral-50 transition rounded-xl">
                     <td className="whitespace-nowrap px-4 2xl:px-6 py-4">
                       <div>
@@ -273,7 +277,7 @@ const PharmacyPage = () => {
         </div>
 
         {/* Pagination */}
-        {filteredMedicines.length > 0 && totalPages > 1 && (
+        {medicines.length > 0 && totalPages > 1 && (
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-4 py-3 border-t border-neutral-200">
             <div className="mb-2 sm:mb-0">
               <Pagination

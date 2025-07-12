@@ -1,6 +1,8 @@
 package com.dentalcare.controller;
 
 import com.dentalcare.model.User;
+import com.dentalcare.dto.PageRequest;
+import com.dentalcare.dto.PageResponse;
 import com.dentalcare.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,8 +18,15 @@ public class UserController {
     }
     
     @GetMapping
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
+    public PageResponse<User> getAllUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "name") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDirection,
+            @RequestParam(defaultValue = "") String search) {
+        PageRequest pageRequest = new PageRequest(page, size, sortBy, sortDirection);
+        pageRequest.setSearch(search);
+        return userService.getAllUsers(pageRequest);
     }
     
     @GetMapping("/dentists")

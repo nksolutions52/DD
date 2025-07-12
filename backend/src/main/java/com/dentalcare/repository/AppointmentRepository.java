@@ -2,6 +2,8 @@ package com.dentalcare.repository;
 
 import com.dentalcare.model.Appointment;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -12,6 +14,14 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     List<Appointment> findByDate(LocalDate date);
     List<Appointment> findByDateBetween(LocalDate startDate, LocalDate endDate);
     List<Appointment> findByPatientId(Long patientId);
+    
+    @Query("SELECT a FROM Appointment a WHERE " +
+           "(:search = '' OR " +
+           "LOWER(a.patientName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(a.dentistName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(a.type) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(a.status) LIKE LOWER(CONCAT('%', :search, '%')))")
+    Page<Appointment> findAppointmentsWithSearch(@Param("search") String search, Pageable pageable);
     
     @Query("SELECT COALESCE(COUNT(DISTINCT a.patientId), 0) FROM Appointment a " +
            "WHERE a.date BETWEEN ?1 AND ?2 " +

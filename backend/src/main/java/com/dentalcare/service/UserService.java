@@ -2,9 +2,12 @@ package com.dentalcare.service;
 
 import com.dentalcare.model.User;
 import com.dentalcare.model.Role;
+import com.dentalcare.dto.PageRequest;
+import com.dentalcare.dto.PageResponse;
 import com.dentalcare.repository.UserRepository;
 import com.dentalcare.repository.RoleRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
 import java.util.List;
 import java.util.Optional;
 import java.util.Arrays;
@@ -17,6 +20,14 @@ public class UserService {
     public UserService(UserRepository userRepository, RoleRepository roleRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+    }
+    
+    public PageResponse<User> getAllUsers(PageRequest pageRequest) {
+        Page<User> page = userRepository.findUsersWithSearch(
+            pageRequest.getSearch(), 
+            pageRequest.toSpringPageRequest()
+        );
+        return new PageResponse<>(page);
     }
     
     public List<User> getAllUsers() {
