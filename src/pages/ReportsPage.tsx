@@ -87,32 +87,34 @@ const ReportsPage = () => {
     actions: (
       <div className="flex space-x-2 sm:space-x-3">
         <div className="flex items-center space-x-2">
-          <button
-            onClick={() => handlePeriodChange('monthly')}
-            className={`btn btn-link px-0 ${
-              filter.period === 'monthly' ? 'font-semibold underline btn-primary' : 'text-neutral-500 text-primary-600'
-            }`}
-          >
-            Monthly
-          </button>
-          <span className="text-neutral-300">|</span>
-          <button
-            onClick={() => handlePeriodChange('quarterly')}
-            className={`btn btn-link px-0 ${
-              filter.period === 'quarterly' ? 'font-semibold underline btn-primary' : 'text-neutral-500 text-primary-600'
-            }`}
-          >
-            Quarterly
-          </button>
-          <span className="text-neutral-300">|</span>
-          <button
-            onClick={() => handlePeriodChange('yearly')}
-            className={`btn btn-link px-0 ${
-              filter.period === 'yearly' ? 'font-semibold underline btn-primary' : 'text-neutral-500 text-primary-600'
-            }`}
-          >
-            Yearly
-          </button>
+          <div className="flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm">
+            <button
+              onClick={() => handlePeriodChange('monthly')}
+              className={`px-2 py-1 rounded ${
+                filter.period === 'monthly' ? 'bg-primary-100 text-primary-700 font-semibold' : 'text-neutral-500 hover:text-primary-600'
+              }`}
+            >
+              Monthly
+            </button>
+            <span className="text-neutral-300">|</span>
+            <button
+              onClick={() => handlePeriodChange('quarterly')}
+              className={`px-2 py-1 rounded ${
+                filter.period === 'quarterly' ? 'bg-primary-100 text-primary-700 font-semibold' : 'text-neutral-500 hover:text-primary-600'
+              }`}
+            >
+              Quarterly
+            </button>
+            <span className="text-neutral-300">|</span>
+            <button
+              onClick={() => handlePeriodChange('yearly')}
+              className={`px-2 py-1 rounded ${
+                filter.period === 'yearly' ? 'bg-primary-100 text-primary-700 font-semibold' : 'text-neutral-500 hover:text-primary-600'
+              }`}
+            >
+              Yearly
+            </button>
+          </div>
         </div>
         <button
           onClick={handleRefresh}

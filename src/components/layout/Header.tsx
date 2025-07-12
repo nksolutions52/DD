@@ -16,13 +16,13 @@ const Header = ({ sidebarOpen, setSidebarOpen }: HeaderProps) => {
 
   return (
     <header className="glass-header z-10 border-b border-white/20 shadow-lg">
-      {/* Main header bar */}
-      <div className="flex h-14 sm:h-16 items-center justify-between px-3 sm:px-4 md:px-6">
+      {/* Main header bar - adjusted for tablet */}
+      <div className="flex h-14 sm:h-16 items-center justify-between px-3 sm:px-4 md:px-4 lg:px-6">
         {/* Left: Menu button (mobile) and Logo */}
         <div className="flex items-center min-w-0 flex-1">
           <button
             type="button"
-            className="mr-3 sm:mr-4 rounded-xl p-1 sm:p-2 text-neutral-600 hover:bg-white/30 hover:text-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all duration-200 lg:hidden"
+            className="mr-3 sm:mr-4 rounded-xl p-1 sm:p-2 text-neutral-600 hover:bg-white/30 hover:text-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all duration-200 md:block lg:hidden"
             onClick={() => setSidebarOpen(!sidebarOpen)}
           >
             <span className="sr-only">Open sidebar</span>
@@ -35,12 +35,12 @@ const Header = ({ sidebarOpen, setSidebarOpen }: HeaderProps) => {
 
           {/* Dynamic page title - only show on larger screens when available */}
           {headerConfig && (
-            <div className="hidden lg:block ml-6 min-w-0 flex-1">
-              <h1 className="text-xl xl:text-2xl font-bold text-neutral-900 truncate">
+            <div className="hidden md:block ml-4 lg:ml-6 min-w-0 flex-1">
+              <h1 className="text-lg md:text-xl xl:text-2xl font-bold text-neutral-900 truncate">
                 {headerConfig.title}
               </h1>
               {headerConfig.subtitle && (
-                <p className="text-sm text-neutral-500 truncate mt-1">
+                <p className="text-xs md:text-sm text-neutral-500 truncate mt-1">
                   {headerConfig.subtitle}
                 </p>
               )}

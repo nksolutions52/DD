@@ -9,14 +9,14 @@ const Layout = () => {
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-primary-50 via-purple-50 to-accent-50">
-      {/* Sidebar */}
+      {/* Sidebar - responsive for tablets */}
       <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
       
       {/* Main Content */}
-      <div className="flex flex-1 flex-col overflow-hidden lg:pl-64">
+      <div className="flex flex-1 flex-col overflow-hidden lg:pl-64 md:pl-0">
         <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
         
-        <main className="flex-1 overflow-auto p-3 sm:p-4 md:p-6 lg:p-8 custom-scrollbar">
+        <main className="flex-1 overflow-auto p-3 sm:p-4 md:p-5 lg:p-6 custom-scrollbar">
           <div className="container-responsive">
             <Outlet />
           </div>

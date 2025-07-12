@@ -236,10 +236,10 @@ const PatientDetailPage = () => {
       </div>
 
       <div className="mb-6 border-b border-neutral-200">
-        <nav className="-mb-px flex space-x-8">
+        <nav className="-mb-px flex space-x-2 sm:space-x-4 md:space-x-8 overflow-x-auto pb-2">
           <button
             onClick={() => setActiveTab('overview')}
-            className={`pb-4 text-sm font-medium ${
+            className={`pb-4 text-xs sm:text-sm font-medium whitespace-nowrap ${
               activeTab === 'overview'
                 ? 'border-b-2 border-primary-600 text-primary-700'
                 : 'text-neutral-600 hover:border-b-2 hover:border-neutral-300 hover:text-neutral-700'
@@ -249,7 +249,7 @@ const PatientDetailPage = () => {
           </button>
           <button
             onClick={() => setActiveTab('appointments')}
-            className={`pb-4 text-sm font-medium ${
+            className={`pb-4 text-xs sm:text-sm font-medium whitespace-nowrap ${
               activeTab === 'appointments'
                 ? 'border-b-2 border-primary-600 text-primary-700'
                 : 'text-neutral-600 hover:border-b-2 hover:border-neutral-300 hover:text-neutral-700'
@@ -260,7 +260,7 @@ const PatientDetailPage = () => {
           {/* Move Treatments tab here */}
           <button
             onClick={() => setActiveTab('treatments')}
-            className={`pb-4 text-sm font-medium ${
+            className={`pb-4 text-xs sm:text-sm font-medium whitespace-nowrap ${
               activeTab === 'treatments'
                 ? 'border-b-2 border-primary-600 text-primary-700'
                 : 'text-neutral-600 hover:border-b-2 hover:border-neutral-300 hover:text-neutral-700'
@@ -270,7 +270,7 @@ const PatientDetailPage = () => {
           </button>
           <button
             onClick={() => setActiveTab('prescriptions')}
-            className={`pb-4 text-sm font-medium ${
+            className={`pb-4 text-xs sm:text-sm font-medium whitespace-nowrap ${
               activeTab === 'prescriptions'
                 ? 'border-b-2 border-primary-600 text-primary-700'
                 : 'text-neutral-600 hover:border-b-2 hover:border-neutral-300 hover:text-neutral-700'
@@ -280,7 +280,7 @@ const PatientDetailPage = () => {
           </button>
           <button
             onClick={() => setActiveTab('medicalHistory')}
-            className={`pb-4 text-sm font-medium ${
+            className={`pb-4 text-xs sm:text-sm font-medium whitespace-nowrap ${
               activeTab === 'medicalHistory'
                 ? 'border-b-2 border-primary-600 text-primary-700'
                 : 'text-neutral-600 hover:border-b-2 hover:border-neutral-300 hover:text-neutral-700'
@@ -290,7 +290,7 @@ const PatientDetailPage = () => {
           </button>
           <button
             onClick={() => setActiveTab('paymentHistory')}
-            className={`pb-4 text-sm font-medium ${
+            className={`pb-4 text-xs sm:text-sm font-medium whitespace-nowrap ${
               activeTab === 'paymentHistory'
                 ? 'border-b-2 border-primary-600 text-primary-700'
                 : 'text-neutral-600 hover:border-b-2 hover:border-neutral-300 hover:text-neutral-700'

@@ -206,10 +206,10 @@ const ConfigurePage = () => {
     <div className="slide-in">
       {/* Tabs */}
       <div className="mb-4 sm:mb-6 border-b border-neutral-200">
-        <nav className="-mb-px flex space-x-4 sm:space-x-8 overflow-x-auto">
+        <nav className="-mb-px flex space-x-4 sm:space-x-8 overflow-x-auto pb-2">
           <button
             onClick={() => setActiveTab('manufacturers')}
-            className={`pb-3 sm:pb-4 text-sm font-medium whitespace-nowrap ${
+            className={`pb-3 sm:pb-4 text-xs sm:text-sm font-medium whitespace-nowrap ${
               activeTab === 'manufacturers'
                 ? 'border-b-2 border-primary-600 text-primary-700'
                 : 'text-neutral-600 hover:border-b-2 hover:border-neutral-300 hover:text-neutral-700'
@@ -219,7 +219,7 @@ const ConfigurePage = () => {
           </button>
           <button
             onClick={() => setActiveTab('medicineTypes')}
-            className={`pb-3 sm:pb-4 text-sm font-medium whitespace-nowrap ${
+            className={`pb-3 sm:pb-4 text-xs sm:text-sm font-medium whitespace-nowrap ${
               activeTab === 'medicineTypes'
                 ? 'border-b-2 border-primary-600 text-primary-700'
                 : 'text-neutral-600 hover:border-b-2 hover:border-neutral-300 hover:text-neutral-700'

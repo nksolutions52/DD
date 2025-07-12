@@ -250,22 +250,60 @@
 /* Tablet improvements */
 @media (min-width: 641px) and (max-width: 1024px) {
   .container-responsive {
-    @apply px-6;
+    @apply px-6 max-w-full;
+  }
+  
+  .card {
+    @apply p-4;
+  }
+  
+  .stats-card {
+    @apply p-4;
+  }
+}
+
+/* Tablet landscape improvements */
+@media (min-width: 1025px) and (max-width: 1280px) {
+  .container-responsive {
+    @apply px-6 max-w-full;
   }
 }
 
 /* Touch-friendly interactive elements */
 @media (hover: none) and (pointer: coarse) {
   .btn {
-    @apply py-3 px-6 text-base;
+    @apply py-2 px-4 text-sm;
   }
   
   .input {
-    @apply py-3 px-4 text-base;
+    @apply py-2 px-3 text-sm;
   }
   
   .sidebar-link {
-    @apply py-3 px-4;
+    @apply py-2 px-3;
+  }
+}
+
+/* Tablet-specific improvements */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .grid-responsive {
+    @apply grid-cols-2;
+  }
+  
+  .grid-responsive-3 {
+    @apply grid-cols-2;
+  }
+  
+  .text-responsive-xl {
+    @apply text-xl;
+  }
+  
+  .text-responsive-lg {
+    @apply text-lg;
+  }
+  
+  .text-responsive {
+    @apply text-base;
   }
 }
 

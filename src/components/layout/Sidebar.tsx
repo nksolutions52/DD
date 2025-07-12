@@ -54,7 +54,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
       />
 
       <div
-        className={`fixed inset-y-0 left-0 z-20 w-64 max-w-full transform overflow-y-auto glass-sidebar transition-transform lg:translate-x-0 flex flex-col ${
+        className={`fixed inset-y-0 left-0 z-20 w-64 max-w-full transform overflow-y-auto glass-sidebar transition-transform lg:translate-x-0 md:w-48 flex flex-col ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -81,12 +81,12 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 key={item.name}
                 to={item.href}
                 className={({ isActive }) =>
-                  `sidebar-link ${isActive ? 'active' : 'text-neutral-600'}`
+                  `sidebar-link ${isActive ? 'active' : 'text-neutral-600'} md:px-3 md:py-2`
                 }
                 onClick={() => setSidebarOpen(false)}
               >
-                <item.icon className="h-4 w-4 sm:h-5 sm:w-5" />
-                <span className="font-medium text-sm sm:text-base">{item.name}</span>
+                <item.icon className="h-4 w-4 sm:h-5 sm:w-5 md:h-4 md:w-4" />
+                <span className="font-medium text-sm sm:text-base md:text-sm">{item.name}</span>
               </NavLink>
             ))}
           </nav>

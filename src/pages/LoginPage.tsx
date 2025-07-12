@@ -29,7 +29,10 @@ const LoginPage = () => {
       {/* Left: Logo and Welcome */}
       <div className="hidden md:flex md:w-1/2 flex-col items-center justify-center p-6 md:p-10 bg-gradient-to-br from-primary-500 via-purple-500 to-accent-500 text-white relative">
         <div className="absolute top-2 left-2 md:top-4 md:left-4 hidden md:block z-10">
-          <img src="images/tooth-logo.svg" alt="Tooth Icon" className="h-10 w-10 md:h-16 md:w-16 drop-shadow-xl" />
+          <div className="flex items-center">
+            <img src="images/tooth-logo.svg" alt="Tooth Icon" className="h-10 w-10 md:h-16 md:w-16 drop-shadow-xl" />
+            <span className="text-xl md:text-3xl font-bold ml-2 text-white">K-Health</span>
+          </div>
         </div>
         <div className="flex flex-col items-center justify-center flex-1 gap-6 mt-4 mb-4 md:mt-6 md:mb-6">
           <h1 className="text-3xl md:text-5xl font-extrabold mb-2 tracking-tight">K-Health</h1>
@@ -45,6 +48,10 @@ const LoginPage = () => {
       {/* Right: Login Form */}
       <div className="w-full md:w-1/2 flex flex-col justify-between p-0 md:p-0 min-h-screen bg-transparent">
         <div className="flex-1 flex items-center justify-center p-4 md:p-12">
+          <div className="md:hidden absolute top-4 left-4 flex items-center">
+            <img src="images/tooth-logo.svg" alt="Tooth Icon" className="h-10 w-10 drop-shadow-xl" />
+            <span className="text-xl font-bold ml-2 text-primary-600">K-Health</span>
+          </div>
           <div className="w-full max-w-md bg-white/90 rounded-2xl shadow-xl p-6 md:p-10">
             <h2 className="text-2xl font-bold text-blue-900 mb-8 text-center">Sign in to your account</h2>
             {(loginError || error) && (

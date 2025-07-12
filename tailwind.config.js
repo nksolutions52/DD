@@ -3,6 +3,13 @@ export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
+      screens: {
+        'tablet': '640px',
+        'laptop': '1024px',
+        'desktop': '1280px',
+        'xl-tablet': {'min': '1024px', 'max': '1279px'},
+        'tablet-only': {'min': '640px', 'max': '1023px'},
+      },
       colors: {
         primary: {
           50:  '#eaf3fb',
