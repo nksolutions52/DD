@@ -26,4 +26,8 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
 
     @Query("SELECT p FROM Patient p WHERE LOWER(p.firstName) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(p.lastName) LIKE LOWER(CONCAT('%', :query, '%')) OR CAST(p.id AS string) LIKE CONCAT('%', :query, '%')")
     List<Patient> searchByNameOrId(@Param("query") String query);
+
+    // Dashboard specific queries for optimized performance
+    @Query("SELECT p FROM Patient p ORDER BY p.createdAt DESC")
+    List<Patient> findRecentPatients(Pageable pageable);
 }

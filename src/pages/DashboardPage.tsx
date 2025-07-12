@@ -2,15 +2,14 @@ import { useState, useEffect } from 'react';
 import { ArrowRight, Calendar, User, Users, TrendingUp, Clock, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { useAppointments, usePatients, useUsers } from '../hooks/useApi';
-import { DashboardStats } from '../types';
+import { DashboardStatsResponse } from '../types';
 import { usePageHeader } from '../hooks/usePageHeader';
+import api from '../services/api';
 
 const DashboardPage = () => {
-  const { data: appointments = [], isLoading: isLoadingAppointments } = useAppointments();
-  const { data: patients = [], isLoading: isLoadingPatients } = usePatients();
-  const { data: users = [], isLoading: isLoadingUsers } = useUsers();
-  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [stats, setStats] = useState<DashboardStatsResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showTreatmentByType, setShowTreatmentByType] = useState(true);
   
   const COLORS = ['#2563eb', '#7c3aed', '#fb3c2d', '#10b981', '#f59e42'];
@@ -22,73 +21,24 @@ const DashboardPage = () => {
   });
 
   useEffect(() => {
-    if (!isLoadingAppointments && !isLoadingPatients && !isLoadingUsers) {
-      const today = new Date().toISOString().split('T')[0];
-      // Calculate stats from API data
-      const todayAppointments = appointments.filter((a: any) => a.date === today).length;
-      const upcomingAppointments = appointments
-        .filter((a: any) => a.date >= today && (a.status === 'scheduled' || a.status === 'confirmed'))
-        .sort((a: any, b: any) => {
-          const dateA = new Date(`${a.date}T${a.startTime}`);
-          const dateB = new Date(`${b.date}T${b.startTime}`);
-          return dateA.getTime() - dateB.getTime();
-        })
-        .slice(0, 5);
+    const fetchDashboardStats = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const dashboardStats = await api.dashboard.getStats();
+        setStats(dashboardStats);
+      } catch (err) {
+        console.error('Failed to fetch dashboard stats:', err);
+        setError('Failed to load dashboard data');
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-      const recentPatients = [...patients]
-        .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-        .slice(0, 5);
+    fetchDashboardStats();
+  }, []);
 
-      // Calculate appointment type stats
-      const appointmentTypes = appointments.reduce((acc: { [key: string]: number }, curr: any) => {
-        acc[curr.type] = (acc[curr.type] || 0) + 1;
-        return acc;
-      }, {});
-
-      const appointmentsByType = Object.entries(appointmentTypes).map(([name, value]) => ({
-        name,
-        value: Number(value),
-      }));
-
-      // Calculate appointment status stats
-      const appointmentStatuses = appointments.reduce((acc: { [key: string]: number }, curr: any) => {
-        acc[curr.status] = (acc[curr.status] || 0) + 1;
-        return acc;
-      }, {});
-
-      const appointmentsByStatus = Object.entries(appointmentStatuses).map(([name, value]) => ({
-        name,
-        value: Number(value),
-      }));
-
-      // Calculate treatment type stats
-      const treatmentByType = appointments.reduce((acc: { [key: string]: number }, curr: any) => {
-        if (curr.treatmentType) {
-          acc[curr.treatmentType] = (acc[curr.treatmentType] || 0) + 1;
-        }
-        return acc;
-      }, {});
-
-      const treatmentsByTypeData = Object.entries(treatmentByType).map(([name, value]) => ({
-        name,
-        value: Number(value), // Ensure value is a number
-      }));
-
-      setStats({
-        todayAppointments,
-        totalAppointments: appointments.length,
-        totalPatients: patients.length,
-        totalUsers: users.length,
-        upcomingAppointments,
-        recentPatients,
-        appointmentsByType,
-        appointmentsByStatus,
-        treatmentsByTypeData,
-      });
-    }
-  }, [appointments, patients, users, isLoadingAppointments, isLoadingPatients, isLoadingUsers]);
-
-  if (isLoadingAppointments || isLoadingPatients || isLoadingUsers) {
+  if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
         <div className="spinner"></div>
@@ -97,13 +47,50 @@ const DashboardPage = () => {
     );
   }
 
-  if (!stats) {
+  if (error) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <p className="text-lg text-error-500">Error loading dashboard data</p>
+        <p className="text-lg text-error-500">{error}</p>
       </div>
     );
   }
+
+  if (!stats) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <p className="text-lg text-error-500">No dashboard data available</p>
+      </div>
+    );
+  }
+
+  // Transform the data for charts
+  const transformedUpcomingAppointments = stats.upcomingAppointments.map(appointment => ({
+    id: appointment.id,
+    patientId: appointment.patientId,
+    patientName: appointment.patientName,
+    dentistName: appointment.dentistName,
+    date: appointment.date,
+    startTime: appointment.startTime,
+    endTime: appointment.endTime,
+    status: appointment.status,
+    type: appointment.type,
+    treatmentType: appointment.treatmentType,
+  }));
+
+  const transformedRecentPatients = stats.recentPatients.map(patient => ({
+    id: patient.id,
+    firstName: patient.firstName,
+    lastName: patient.lastName,
+    phone: patient.phone,
+    lastVisit: patient.lastVisit,
+  }));
+
+  const chartData = {
+    appointmentsByType: stats.appointmentsByType,
+    appointmentsByStatus: stats.appointmentsByStatus,
+    treatmentsByType: stats.treatmentsByType,
+    }
+
 
   return (
     <div className="slide-in space-y-4 sm:space-y-6">
@@ -209,7 +196,7 @@ const DashboardPage = () => {
             </Link>
           </div>
           <div className="overflow-hidden rounded-xl border border-neutral-200/50">
-            {stats.upcomingAppointments.length === 0 ? (
+            {transformedUpcomingAppointments.length === 0 ? (
               <div className="flex items-center justify-center h-48 w-full">
                 <span className="text-neutral-400 text-base font-medium">No appointments today</span>
               </div>
@@ -232,7 +219,7 @@ const DashboardPage = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-neutral-200/50 bg-white/50">
-                  {stats.upcomingAppointments.map((appointment) => (
+                  {transformedUpcomingAppointments.map((appointment) => (
                     <tr key={appointment.id} className="hover:bg-primary-50/30 transition-colors duration-200">
                       <td className="whitespace-nowrap px-3 sm:px-4 py-3">
                         <div className="flex items-center">
@@ -306,7 +293,7 @@ const DashboardPage = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-neutral-200/50 bg-white/50">
-                  {stats.recentPatients.map((patient) => (
+                  {transformedRecentPatients.map((patient) => (
                     <tr key={patient.id} className="hover:bg-primary-50/30 transition-colors duration-200">
                       <td className="whitespace-nowrap px-3 sm:px-4 py-3">
                         <div className="flex items-center">
@@ -360,7 +347,7 @@ const DashboardPage = () => {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={showTreatmentByType ? stats.treatmentsByTypeData : stats.appointmentsByType}
+                  data={showTreatmentByType ? chartData.treatmentsByType : chartData.appointmentsByType}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
@@ -369,7 +356,7 @@ const DashboardPage = () => {
                   dataKey="value"
                   label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                 >
-                  {(showTreatmentByType ? stats.treatmentsByTypeData : stats.appointmentsByType).map((entry, index) => (
+                  {(showTreatmentByType ? chartData.treatmentsByType : chartData.appointmentsByType).map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
@@ -385,7 +372,7 @@ const DashboardPage = () => {
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
-                data={stats.appointmentsByStatus}
+                data={chartData.appointmentsByStatus}
                 margin={{
                   top: 5,
                   right: 30,

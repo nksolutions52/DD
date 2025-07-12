@@ -351,6 +351,12 @@ export const reports = {
   },
 };
 
+export const dashboard = {
+  getStats: async () => {
+    const response = await api.get('/dashboard/stats');
+    return response.data;
+  },
+};
 export const treatments = {
   getAll: async () => {
     const response = await api.get('/treatments');
@@ -405,6 +411,7 @@ const apiService = {
   pharmacySales,
   pharmacyCustomers,
   reports,
+  dashboard,
   treatments,
   amounts,
 };

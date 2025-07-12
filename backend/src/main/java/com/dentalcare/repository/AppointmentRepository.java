@@ -36,4 +36,20 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     GROUP BY a.type
     """, nativeQuery = true)
     List<Object[]> getAppointmentTypeStats(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+    // Dashboard specific queries for optimized performance
+    @Query("SELECT COUNT(a) FROM Appointment a WHERE a.date = :date")
+    long countByDate(@Param("date") LocalDate date);
+
+    @Query("SELECT a FROM Appointment a WHERE a.date >= :date AND a.status IN ('scheduled', 'confirmed') ORDER BY a.date ASC, a.startTime ASC")
+    List<Appointment> findUpcomingAppointments(@Param("date") LocalDate date, Pageable pageable);
+
+    @Query("SELECT a.type, COUNT(a) FROM Appointment a GROUP BY a.type")
+    List<Object[]> getAppointmentTypeStatistics();
+
+    @Query("SELECT a.status, COUNT(a) FROM Appointment a GROUP BY a.status")
+    List<Object[]> getAppointmentStatusStatistics();
+
+    @Query("SELECT a.treatmentType, COUNT(a) FROM Appointment a WHERE a.treatmentType IS NOT NULL GROUP BY a.treatmentType")
+    List<Object[]> getTreatmentTypeStatistics();
 }

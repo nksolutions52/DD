@@ -115,6 +115,44 @@ export interface DashboardStats {
   treatmentsByTypeData: Array<{ name: string; value: number }>;
 }
 
+// Optimized dashboard response types
+export interface DashboardStatsResponse {
+  todayAppointments: number;
+  totalAppointments: number;
+  totalPatients: number;
+  totalUsers: number;
+  upcomingAppointments: UpcomingAppointmentDto[];
+  recentPatients: RecentPatientDto[];
+  appointmentsByType: StatisticDto[];
+  appointmentsByStatus: StatisticDto[];
+  treatmentsByType: StatisticDto[];
+}
+
+export interface UpcomingAppointmentDto {
+  id: number;
+  patientName: string;
+  dentistName: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  status: string;
+  type: string;
+  treatmentType: string;
+  patientId: number;
+}
+
+export interface RecentPatientDto {
+  id: number;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  lastVisit?: string;
+}
+
+export interface StatisticDto {
+  name: string;
+  value: number;
+}
 // Pharmacy types
 export interface PharmacyCustomer {
   id: number;
