@@ -53,7 +53,10 @@ const LoginPage = () => {
             <span className="text-xl font-bold ml-2 text-primary-600">K-Health</span>
           </div>
           <div className="w-full max-w-md bg-white/90 rounded-2xl shadow-xl p-6 md:p-10">
-            <h2 className="text-2xl font-bold text-blue-900 mb-8 text-center">Sign in to your account</h2>
+            <div className="flex flex-col items-center mb-8">
+              <img src="images/tooth-logo.svg" alt="Tooth Icon" className="h-12 w-12 mb-3" />
+              <h2 className="text-2xl font-bold text-blue-900 text-center">K-Health</h2>
+            </div>
             {(loginError || error) && (
               <div className="mb-4 rounded-md bg-red-100 p-3 text-sm text-red-700 text-center">
                 {loginError || error}
