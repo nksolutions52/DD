@@ -17,7 +17,7 @@ interface CacheEntry<T> {
 
 // Global cache for paginated data
 const paginationCache = new Map<string, CacheEntry<any>>();
-const CACHE_DURATION = 3 * 60 * 1000; // 3 minutes
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 export function usePaginatedApi<T>(
   apiFunction: (pageRequest: PageRequest) => Promise<PageResponse<T>>,
@@ -34,10 +34,10 @@ export function usePaginatedApi<T>(
     search: '',
   });
 
-  // Track component mount state
+  // Track component mount state and current request
   const isMountedRef = useRef(true);
   const abortControllerRef = useRef<AbortController | null>(null);
-  const lastRequestRef = useRef<string>('');
+  const lastRequestIdRef = useRef<string>('');
 
   useEffect(() => {
     return () => {
@@ -54,14 +54,15 @@ export function usePaginatedApi<T>(
   }, [options.cacheKey]);
 
   const fetchData = useCallback(async (request: PageRequest, force = false) => {
-    const requestKey = JSON.stringify(request);
+    const requestId = JSON.stringify(request) + (force ? '-force' : '');
     
     // Prevent duplicate requests
-    if (lastRequestRef.current === requestKey && !force) {
+    if (lastRequestIdRef.current === requestId) {
+      console.log('Preventing duplicate request:', requestId);
       return;
     }
     
-    lastRequestRef.current = requestKey;
+    lastRequestIdRef.current = requestId;
 
     // Cancel previous request
     if (abortControllerRef.current) {
@@ -89,7 +90,7 @@ export function usePaginatedApi<T>(
 
       console.log('Making API call for:', request);
       
-      // Set loading only if we don't have cached data
+      // Set loading state
       if (isMountedRef.current) {
         setIsLoading(true);
         setError(null);
@@ -98,8 +99,9 @@ export function usePaginatedApi<T>(
       const result = await apiFunction(request);
       console.log('API response received:', result);
 
-      // Update state if component is still mounted
+      // Update state immediately after successful response
       if (isMountedRef.current) {
+        console.log('Updating component state with data');
         setData(result);
         setError(null);
         setIsLoading(false);
@@ -111,11 +113,13 @@ export function usePaginatedApi<T>(
             data: result,
             timestamp: Date.now(),
           });
+          console.log('Data cached with key:', cacheKey);
         }
       }
     } catch (err: any) {
       // Don't handle aborted requests as errors
       if (err.name === 'AbortError') {
+        console.log('Request aborted');
         return;
       }
       
@@ -135,6 +139,8 @@ export function usePaginatedApi<T>(
   const debouncedFetchRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
+    console.log('useEffect triggered with pageRequest:', pageRequest);
+    
     // Clear existing timeout
     if (debouncedFetchRef.current) {
       clearTimeout(debouncedFetchRef.current);
@@ -142,11 +148,13 @@ export function usePaginatedApi<T>(
 
     // If it's a search operation, debounce it
     if (pageRequest.search && pageRequest.search.length > 0) {
+      console.log('Debouncing search request');
       debouncedFetchRef.current = setTimeout(() => {
         fetchData(pageRequest);
       }, 300);
     } else {
       // For non-search operations, fetch immediately
+      console.log('Making immediate request');
       fetchData(pageRequest);
     }
 
@@ -158,6 +166,7 @@ export function usePaginatedApi<T>(
   }, [pageRequest, fetchData]);
 
   const updatePageRequest = useCallback((updates: Partial<PageRequest>) => {
+    console.log('Updating page request with:', updates);
     setPageRequest(prev => {
       const newRequest = {
         ...prev,
@@ -167,27 +176,35 @@ export function usePaginatedApi<T>(
           ? { page: 0 } 
           : {}),
       };
+      console.log('New page request:', newRequest);
       return newRequest;
     });
   }, []);
 
   const setPage = useCallback((page: number) => {
+    console.log('Setting page to:', page);
     updatePageRequest({ page });
   }, [updatePageRequest]);
 
   const setPageSize = useCallback((size: number) => {
+    console.log('Setting page size to:', size);
     updatePageRequest({ size, page: 0 });
   }, [updatePageRequest]);
 
   const setSearch = useCallback((search: string) => {
+    console.log('Setting search to:', search);
     updatePageRequest({ search });
   }, [updatePageRequest]);
 
   const setSort = useCallback((sortBy: string, sortDirection: 'asc' | 'desc' = 'asc') => {
+    console.log('Setting sort to:', sortBy, sortDirection);
     updatePageRequest({ sortBy, sortDirection });
   }, [updatePageRequest]);
 
   const refetch = useCallback((force = false) => {
+    console.log('Refetch called with force:', force);
+    // Clear the last request ID to allow refetch
+    lastRequestIdRef.current = '';
     return fetchData(pageRequest, force);
   }, [fetchData, pageRequest]);
 
@@ -201,6 +218,16 @@ export function usePaginatedApi<T>(
       paginationCache.clear();
     }
   }, [options.cacheKey]);
+
+  // Debug logging for component state
+  console.log('usePaginatedApi state:', {
+    hasData: !!data,
+    isLoading,
+    error: !!error,
+    contentLength: data?.content?.length || 0,
+    totalPages: data?.totalPages || 0,
+    currentPage: data?.page || 0
+  });
 
   return {
     data,

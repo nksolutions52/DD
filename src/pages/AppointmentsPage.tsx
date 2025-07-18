@@ -122,12 +122,15 @@ const AppointmentsPage = () => {
   console.log('AppointmentsPage render:', { 
     isLoading, 
     hasData: !!paginatedData, 
+    paginatedData,
     appointments: appointments.length,
     totalPages,
-    currentPage 
+    currentPage,
+    error: !!error
   });
 
   if (isLoading) {
+    console.log('AppointmentsPage: Showing loading state');
     return (
       <div className="flex h-64 items-center justify-center">
         <div className="text-center">
@@ -139,12 +142,15 @@ const AppointmentsPage = () => {
   }
 
   if (error) {
+    console.log('AppointmentsPage: Showing error state', error);
     return (
       <div className="flex h-64 items-center justify-center">
         <p className="text-lg text-error-500">Error loading appointments: {error.message}</p>
       </div>
     );
   }
+
+  console.log('AppointmentsPage: Rendering data with', appointments.length, 'appointments');
 
   return (
     <div className="slide-in space-y-4 sm:space-y-6">

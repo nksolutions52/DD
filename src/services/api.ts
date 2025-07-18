@@ -28,7 +28,9 @@ api.interceptors.request.use(
 // Add response interceptor to handle errors
 api.interceptors.response.use(
   (response) => response,
+    console.log('API Response interceptor - Success:', response.config.url, response.data);
   (error) => {
+    console.log('API Response interceptor - Error:', error.config?.url, error.response?.status, error.message);
     if (error.response?.status === 401) {
       // Handle unauthorized access
       window.location.href = '/login';
@@ -153,6 +155,7 @@ export const patients = {
 
 export const appointments = {
   getAll: async (pageRequest?: PageRequest): Promise<PageResponse<any> | any[]> => {
+    console.log('API: appointments.getAll called with:', pageRequest);
     if (pageRequest) {
       const params = new URLSearchParams({
         page: pageRequest.page.toString(),
@@ -161,10 +164,14 @@ export const appointments = {
         ...(pageRequest.sortDirection && { sortDirection: pageRequest.sortDirection }),
         ...(pageRequest.search && { search: pageRequest.search }),
       });
+      console.log('API: Making paginated request to /appointments with params:', params.toString());
       const response = await api.get(`/appointments?${params}`);
+      console.log('API: Received paginated appointments response:', response.data);
       return response.data;
     }
+    console.log('API: Making non-paginated request to /appointments');
     const response = await api.get('/appointments');
+    console.log('API: Received non-paginated appointments response:', response.data);
     return response.data;
   },
   getByDate: async (date: string) => {

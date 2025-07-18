@@ -70,12 +70,15 @@ const PatientsPage = () => {
   console.log('PatientsPage render:', { 
     isLoading, 
     hasData: !!paginatedData, 
+    paginatedData,
     patients: patients.length,
     totalPages,
-    currentPage 
+    currentPage,
+    error: !!error
   });
 
   if (isLoading) {
+    console.log('PatientsPage: Showing loading state');
     return (
       <div className="flex h-64 items-center justify-center">
         <div className="text-center">
@@ -87,6 +90,7 @@ const PatientsPage = () => {
   }
 
   if (error) {
+    console.log('PatientsPage: Showing error state', error);
     return (
       <div className="flex h-64 items-center justify-center">
         <div className="card text-center">
@@ -95,6 +99,8 @@ const PatientsPage = () => {
       </div>
     );
   }
+
+  console.log('PatientsPage: Rendering data with', patients.length, 'patients');
 
   return (
     <div className="slide-in space-y-4 sm:space-y-6">
