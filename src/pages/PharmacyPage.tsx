@@ -20,6 +20,8 @@ const PharmacyPage = () => {
     initialPageSize: 10,
     initialSortBy: 'name',
     initialSortDirection: 'asc',
+    enableCache: true,
+    cacheKey: 'medicines',
   });
 
   const [showForm, setShowForm] = useState(false);

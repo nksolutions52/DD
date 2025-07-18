@@ -21,6 +21,8 @@ const AppointmentsPage = () => {
     initialPageSize: 10,
     initialSortBy: 'date',
     initialSortDirection: 'desc',
+    enableCache: true,
+    cacheKey: 'appointments',
   });
 
   const [statusFilter, setStatusFilter] = useState('all');

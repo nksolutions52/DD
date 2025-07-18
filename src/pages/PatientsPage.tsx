@@ -7,6 +7,7 @@ import Pagination from '../components/common/Pagination';
 import { usePaginatedApi } from '../hooks/usePaginatedApi';
 import { usePageHeader } from '../hooks/usePageHeader';
 import api from '../services/api';
+import { useEffect } from 'react';
 
 const PatientsPage = () => {
   const {
@@ -21,6 +22,8 @@ const PatientsPage = () => {
     initialPageSize: 10,
     initialSortBy: 'firstName',
     initialSortDirection: 'asc',
+    enableCache: true,
+    cacheKey: 'patients',
   });
 
   const [showForm, setShowForm] = useState(false);
@@ -28,6 +31,14 @@ const PatientsPage = () => {
   const patients = paginatedData?.content || [];
   const totalPages = paginatedData?.totalPages || 0;
   const currentPage = (paginatedData?.page || 0) + 1; // Convert from 0-based to 1-based
+
+  // Clear cache when component unmounts to ensure fresh data on next visit
+  useEffect(() => {
+    return () => {
+      // Optional: Clear cache on unmount if you want fresh data every time
+      // clearCache();
+    };
+  }, []);
 
   // Set page header with actions
   usePageHeader({

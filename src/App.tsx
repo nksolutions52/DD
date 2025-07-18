@@ -3,6 +3,7 @@ import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 import Layout from './components/layout/Layout';
 import LoginPage from './pages/LoginPage';
+import { clearExpiredCache } from './hooks/usePaginatedApi';
 import DashboardPage from './pages/DashboardPage';
 import PatientsPage from './pages/PatientsPage';
 import AppointmentsPage from './pages/AppointmentsPage';
@@ -34,6 +35,10 @@ function App() {
   // Scroll to top on route change
   useEffect(() => {
     window.scrollTo(0, 0);
+    
+    // Clear expired cache entries periodically
+    const interval = setInterval(clearExpiredCache, 5 * 60 * 1000); // Every 5 minutes
+    return () => clearInterval(interval);
   }, [location.pathname]);
 
   return (

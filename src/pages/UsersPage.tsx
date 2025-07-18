@@ -30,6 +30,8 @@ const UsersPage = () => {
     initialPageSize: 10,
     initialSortBy: 'name',
     initialSortDirection: 'asc',
+    enableCache: true,
+    cacheKey: 'users',
   });
   
   const { data: roles = [], isLoading: isLoadingRoles } = useRoles();
