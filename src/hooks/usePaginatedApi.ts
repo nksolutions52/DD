@@ -96,8 +96,23 @@ export function usePaginatedApi<T>(
         setError(null);
       }
 
-      const result = await apiFunction(request);
+      let result = await apiFunction(request);
       console.log('API response received:', result);
+
+      // Defensive: If result is an array, wrap it as paginated object
+      if (Array.isArray(result)) {
+        result = {
+          content: result,
+          page: 0,
+          totalPages: 1,
+          totalElements: result.length,
+          size: result.length,
+          first: true,
+          last: true,
+          empty: result.length === 0,
+        };
+        console.warn('API returned array, wrapped as paginated object:', result);
+      }
 
       // Update state immediately after successful response
       if (isMountedRef.current) {
