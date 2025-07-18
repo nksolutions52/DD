@@ -69,12 +69,14 @@ const PatientsPage = () => {
   // Debug logging
   console.log('PatientsPage render:', { 
     isLoading, 
+    isLoadingValue: isLoading,
     hasData: !!paginatedData, 
     paginatedData,
     patients: patients.length,
     totalPages,
     currentPage,
-    error: !!error
+    error: !!error,
+    dataContent: paginatedData?.content?.length || 0
   });
 
   if (isLoading) {

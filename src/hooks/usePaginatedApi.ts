@@ -104,7 +104,9 @@ export function usePaginatedApi<T>(
         console.log('Updating component state with data');
         setData(result);
         setError(null);
+        // Force loading to false immediately
         setIsLoading(false);
+        console.log('Loading state set to false');
 
         // Cache the result if enabled
         if (options.enableCache !== false) {
@@ -128,9 +130,16 @@ export function usePaginatedApi<T>(
         const error = err instanceof Error ? err : new Error('An error occurred');
         setError(error);
         setIsLoading(false);
+        console.log('Loading state set to false due to error');
         if (options.onError) {
           options.onError(error);
         }
+      }
+    } finally {
+      // Ensure loading is always set to false
+      if (isMountedRef.current) {
+        setIsLoading(false);
+        console.log('Loading state set to false in finally block');
       }
     }
   }, [apiFunction, options, getCacheKey]);
