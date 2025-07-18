@@ -66,6 +66,9 @@ const PatientsPage = () => {
     setSearch(searchTerm);
   };
 
+  // Debug logging
+  console.log('PatientsPage render:', { isLoading, paginatedData, patients: patients.length });
+
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">

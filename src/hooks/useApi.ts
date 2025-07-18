@@ -22,7 +22,7 @@ export function useApi<T>(
   
   // Use refs to prevent duplicate calls
   const isMountedRef = useRef(true);
-  const currentRequestRef = useRef<Promise<void> | null>(null);
+  const currentRequestRef = useRef<string | null>(null);
   const isInitializedRef = useRef(false);
 
   useEffect(() => {
@@ -32,66 +32,69 @@ export function useApi<T>(
   }, []);
 
   const fetchData = useCallback(async (force = false) => {
+    const requestId = `${Date.now()}-${Math.random()}`;
+    
     // Prevent duplicate requests
-    if (currentRequestRef.current && !force) {
-      return currentRequestRef.current;
+    if (currentRequestRef.current === requestId && !force) {
+      return;
     }
+    
+    currentRequestRef.current = requestId;
 
     const cacheKey = options.cacheKey || apiFunction.toString();
     const now = Date.now();
     
-    // Check cache first if enabled and not forced
-    if (options.enableCache !== false && !force) {
-      const cachedEntry = apiCache.get(cacheKey);
-      if (cachedEntry && (now - cachedEntry.timestamp) < CACHE_DURATION) {
-        if (isMountedRef.current) {
-          setData(cachedEntry.data);
-          setError(null);
-          setIsLoading(false);
+    try {
+      // Check cache first if enabled and not forced
+      if (options.enableCache !== false && !force) {
+        const cachedEntry = apiCache.get(cacheKey);
+        if (cachedEntry && (now - cachedEntry.timestamp) < CACHE_DURATION) {
+          if (isMountedRef.current) {
+            setData(cachedEntry.data);
+            setError(null);
+            setIsLoading(false);
+          }
+          return;
         }
-        return Promise.resolve();
       }
-    }
 
-    const requestPromise = (async () => {
-      try {
-        if (isMountedRef.current) {
-          setIsLoading(true);
-          setError(null);
-        }
+      if (isMountedRef.current) {
+        setIsLoading(true);
+        setError(null);
+      }
 
-        const result = await apiFunction();
+      console.log('Making API call for:', cacheKey);
+      const result = await apiFunction();
+      console.log('API response received:', result);
+      
+      if (isMountedRef.current && currentRequestRef.current === requestId) {
+        setData(result);
+        setError(null);
+        setIsLoading(false);
         
-        if (isMountedRef.current) {
-          setData(result);
-          setError(null);
-          
-          // Cache the result if enabled
-          if (options.enableCache !== false) {
-            apiCache.set(cacheKey, {
-              data: result,
-              timestamp: now,
-            });
-          }
+        // Cache the result if enabled
+        if (options.enableCache !== false) {
+          apiCache.set(cacheKey, {
+            data: result,
+            timestamp: now,
+          });
         }
-      } catch (err) {
-        if (isMountedRef.current) {
-          const error = err instanceof Error ? err : new Error('An error occurred');
-          setError(error);
-          if (options.onError) {
-            options.onError(error);
-          }
+      }
+    } catch (err) {
+      console.error('API call failed:', err);
+      if (isMountedRef.current && currentRequestRef.current === requestId) {
+        const error = err instanceof Error ? err : new Error('An error occurred');
+        setError(error);
+        setIsLoading(false);
+        if (options.onError) {
+          options.onError(error);
         }
-      } finally {
-        if (isMountedRef.current) {
-          setIsLoading(false);
-        }
+      }
+    } finally {
+      if (currentRequestRef.current === requestId) {
         currentRequestRef.current = null;
       }
-    })();
-
-    currentRequestRef.current = requestPromise;
-    return requestPromise;
+    }
   }, [apiFunction, options]);
 
   useEffect(() => {

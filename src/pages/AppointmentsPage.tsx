@@ -118,6 +118,9 @@ const AppointmentsPage = () => {
     setSearch(searchTerm);
   };
 
+  // Debug logging
+  console.log('AppointmentsPage render:', { isLoading, paginatedData, appointments: appointments.length });
+
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">

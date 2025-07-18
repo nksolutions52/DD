@@ -77,6 +77,9 @@ const UsersPage = () => {
     setSearch(searchTerm);
   };
 
+  // Debug logging
+  console.log('UsersPage render:', { isLoading: isLoadingUsers, paginatedData, users: users.length });
+
   const handleAddUser = () => {
     setEditingUser(null);
     setFormData({
