@@ -119,7 +119,13 @@ const AppointmentsPage = () => {
   };
 
   // Debug logging
-  console.log('AppointmentsPage render:', { isLoading, paginatedData, appointments: appointments.length });
+  console.log('AppointmentsPage render:', { 
+    isLoading, 
+    hasData: !!paginatedData, 
+    appointments: appointments.length,
+    totalPages,
+    currentPage 
+  });
 
   if (isLoading) {
     return (

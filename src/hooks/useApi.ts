@@ -20,28 +20,38 @@ export function useApi<T>(
   const [error, setError] = useState<Error | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Use refs to prevent duplicate calls
+  // Track component mount state
   const isMountedRef = useRef(true);
-  const currentRequestRef = useRef<string | null>(null);
-  const isInitializedRef = useRef(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const lastRequestRef = useRef<string>('');
 
   useEffect(() => {
     return () => {
       isMountedRef.current = false;
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
     };
   }, []);
 
   const fetchData = useCallback(async (force = false) => {
-    const requestId = `${Date.now()}-${Math.random()}`;
+    const cacheKey = options.cacheKey || apiFunction.toString();
+    const requestKey = `${cacheKey}-${force}`;
     
     // Prevent duplicate requests
-    if (currentRequestRef.current === requestId && !force) {
+    if (lastRequestRef.current === requestKey && !force) {
       return;
     }
     
-    currentRequestRef.current = requestId;
+    lastRequestRef.current = requestKey;
 
-    const cacheKey = options.cacheKey || apiFunction.toString();
+    // Cancel previous request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    
+    abortControllerRef.current = new AbortController();
+
     const now = Date.now();
     
     try {
@@ -49,6 +59,7 @@ export function useApi<T>(
       if (options.enableCache !== false && !force) {
         const cachedEntry = apiCache.get(cacheKey);
         if (cachedEntry && (now - cachedEntry.timestamp) < CACHE_DURATION) {
+          console.log('Using cached data for:', cacheKey);
           if (isMountedRef.current) {
             setData(cachedEntry.data);
             setError(null);
@@ -58,16 +69,17 @@ export function useApi<T>(
         }
       }
 
+      console.log('Making API call for:', cacheKey);
+      
       if (isMountedRef.current) {
         setIsLoading(true);
         setError(null);
       }
 
-      console.log('Making API call for:', cacheKey);
       const result = await apiFunction();
       console.log('API response received:', result);
       
-      if (isMountedRef.current && currentRequestRef.current === requestId) {
+      if (isMountedRef.current) {
         setData(result);
         setError(null);
         setIsLoading(false);
@@ -80,9 +92,14 @@ export function useApi<T>(
           });
         }
       }
-    } catch (err) {
+    } catch (err: any) {
+      // Don't handle aborted requests as errors
+      if (err.name === 'AbortError') {
+        return;
+      }
+      
       console.error('API call failed:', err);
-      if (isMountedRef.current && currentRequestRef.current === requestId) {
+      if (isMountedRef.current) {
         const error = err instanceof Error ? err : new Error('An error occurred');
         setError(error);
         setIsLoading(false);
@@ -90,18 +107,11 @@ export function useApi<T>(
           options.onError(error);
         }
       }
-    } finally {
-      if (currentRequestRef.current === requestId) {
-        currentRequestRef.current = null;
-      }
     }
   }, [apiFunction, options]);
 
   useEffect(() => {
-    if (!isInitializedRef.current) {
-      isInitializedRef.current = true;
-      fetchData();
-    }
+    fetchData();
   }, [fetchData]);
 
   return { data, error, isLoading, refetch: fetchData };

@@ -66,7 +66,13 @@ const PharmacyPage = () => {
   };
 
   // Debug logging
-  console.log('PharmacyPage render:', { isLoading, paginatedData, medicines: medicines.length });
+  console.log('PharmacyPage render:', { 
+    isLoading, 
+    hasData: !!paginatedData, 
+    medicines: medicines.length,
+    totalPages,
+    currentPage 
+  });
 
   if (isLoading) {
     return (

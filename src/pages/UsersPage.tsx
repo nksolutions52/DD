@@ -78,7 +78,13 @@ const UsersPage = () => {
   };
 
   // Debug logging
-  console.log('UsersPage render:', { isLoading: isLoadingUsers, paginatedData, users: users.length });
+  console.log('UsersPage render:', { 
+    isLoading: isLoadingUsers, 
+    hasData: !!paginatedData, 
+    users: users.length,
+    totalPages,
+    currentPage 
+  });
 
   const handleAddUser = () => {
     setEditingUser(null);
