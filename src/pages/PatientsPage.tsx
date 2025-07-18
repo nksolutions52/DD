@@ -7,7 +7,6 @@ import Pagination from '../components/common/Pagination';
 import { usePaginatedApi } from '../hooks/usePaginatedApi';
 import { usePageHeader } from '../hooks/usePageHeader';
 import api from '../services/api';
-import { useEffect } from 'react';
 
 const PatientsPage = () => {
   const {
@@ -32,14 +31,6 @@ const PatientsPage = () => {
   const totalPages = paginatedData?.totalPages || 0;
   const currentPage = (paginatedData?.page || 0) + 1; // Convert from 0-based to 1-based
 
-  // Clear cache when component unmounts to ensure fresh data on next visit
-  useEffect(() => {
-    return () => {
-      // Optional: Clear cache on unmount if you want fresh data every time
-      // clearCache();
-    };
-  }, []);
-
   // Set page header with actions
   usePageHeader({
     title: 'Patients',
@@ -59,7 +50,7 @@ const PatientsPage = () => {
   const handleAddPatient = async (patient: Patient) => {
     try {
       await api.patients.create(patient);
-      refetch();
+      refetch(true); // Force refresh to get latest data
       setShowForm(false);
     } catch (error) {
       console.error('Failed to create patient:', error);
@@ -78,8 +69,10 @@ const PatientsPage = () => {
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="spinner"></div>
-        <p className="ml-3 text-lg text-neutral-500">Loading patients...</p>
+        <div className="text-center">
+          <div className="spinner mx-auto mb-4"></div>
+          <p className="text-lg text-neutral-500">Loading patients...</p>
+        </div>
       </div>
     );
   }

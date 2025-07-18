@@ -162,7 +162,7 @@ const UsersPage = () => {
 
     try {
       await api.users.delete(userToDelete.id);
-      await refetchUsers();
+      await refetchUsers(true); // Force refresh to get latest data
       showAlert('success', 'Success', 'User deleted successfully!');
     } catch (error) {
       console.error('Failed to delete user:', error);
@@ -191,8 +191,10 @@ const UsersPage = () => {
   if (isLoadingUsers || isLoadingRoles) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="spinner"></div>
-        <p className="ml-3 text-lg text-neutral-500">Loading users...</p>
+        <div className="text-center">
+          <div className="spinner mx-auto mb-4"></div>
+          <p className="text-lg text-neutral-500">Loading users...</p>
+        </div>
       </div>
     );
   }

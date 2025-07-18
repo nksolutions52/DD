@@ -72,7 +72,7 @@ const AppointmentsPage = () => {
   const handleAddAppointment = async (appointment: Appointment) => {
     try {
       await api.appointments.create(appointment);
-      refetch();
+      refetch(true); // Force refresh to get latest data
       setShowForm(false);
       setEditingAppointment(null);
     } catch (error) {
@@ -83,7 +83,7 @@ const AppointmentsPage = () => {
   const handleEditAppointment = async (appointment: Appointment) => {
     try {
       await api.appointments.update(appointment.id, appointment);
-      refetch();
+      refetch(true); // Force refresh to get latest data
       setShowForm(false);
       setEditingAppointment(null);
     } catch (error) {
@@ -94,7 +94,7 @@ const AppointmentsPage = () => {
   const handleCancelAppointment = async (appointment: Appointment) => {
     try {
       await api.appointments.update(appointment.id, { ...appointment, status: 'cancelled' });
-      refetch();
+      refetch(true); // Force refresh to get latest data
     } catch (error) {
       console.error('Failed to cancel appointment:', error);
     }
@@ -121,7 +121,10 @@ const AppointmentsPage = () => {
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <p className="text-lg text-neutral-500">Loading appointments...</p>
+        <div className="text-center">
+          <div className="spinner mx-auto mb-4"></div>
+          <p className="text-lg text-neutral-500">Loading appointments...</p>
+        </div>
       </div>
     );
   }

@@ -35,10 +35,12 @@ export function usePaginatedApi<T>(
     search: '',
   });
 
-  // Use ref to track if component is mounted
+  // Use refs to track component state and prevent duplicate calls
   const isMountedRef = useRef(true);
   const abortControllerRef = useRef<AbortController | null>(null);
   const lastRequestRef = useRef<string>('');
+  const isInitializedRef = useRef(false);
+  const currentRequestRef = useRef<Promise<void> | null>(null);
 
   useEffect(() => {
     return () => {
@@ -50,15 +52,20 @@ export function usePaginatedApi<T>(
   }, []);
 
   const getCacheKey = useCallback((request: PageRequest) => {
-    const baseKey = options.cacheKey || apiFunction.toString();
+    const baseKey = options.cacheKey || 'paginated-data';
     return `${baseKey}-${JSON.stringify(request)}`;
-  }, [options.cacheKey, apiFunction]);
+  }, [options.cacheKey]);
 
   const isValidCache = useCallback((cacheEntry: CacheEntry<T>) => {
     return Date.now() - cacheEntry.timestamp < CACHE_DURATION;
   }, []);
 
   const fetchData = useCallback(async (request: PageRequest, force = false) => {
+    // Prevent duplicate requests
+    if (currentRequestRef.current && !force) {
+      return currentRequestRef.current;
+    }
+
     // Create a unique request identifier
     const requestId = `${Date.now()}-${Math.random()}`;
     lastRequestRef.current = requestId;
@@ -74,61 +81,76 @@ export function usePaginatedApi<T>(
           setError(null);
           setIsLoading(false);
         }
-        return;
+        return Promise.resolve();
       }
     }
 
-    try {
-      // Cancel previous request
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-
-      // Create new abort controller
-      abortControllerRef.current = new AbortController();
-
-      if (isMountedRef.current && lastRequestRef.current === requestId) {
-        setIsLoading(true);
-        setError(null);
-      }
-
-      const result = await apiFunction(request);
-
-      // Only update state if this is still the latest request and component is mounted
-      if (isMountedRef.current && lastRequestRef.current === requestId) {
-        setData(result);
-        setError(null);
-
-        // Cache the result if enabled
-        if (options.enableCache !== false) {
-          const cacheKey = getCacheKey(request);
-          paginationCache.set(cacheKey, {
-            data: result,
-            timestamp: Date.now(),
-            pageRequest: request,
-          });
+    const requestPromise = (async () => {
+      try {
+        // Cancel previous request
+        if (abortControllerRef.current) {
+          abortControllerRef.current.abort();
         }
-      }
-    } catch (err) {
-      // Only update error state if this is still the latest request and component is mounted
-      if (isMountedRef.current && lastRequestRef.current === requestId) {
-        const error = err instanceof Error ? err : new Error('An error occurred');
-        setError(error);
-        if (options.onError) {
-          options.onError(error);
+
+        // Create new abort controller
+        abortControllerRef.current = new AbortController();
+
+        if (isMountedRef.current && lastRequestRef.current === requestId) {
+          setIsLoading(true);
+          setError(null);
         }
+
+        const result = await apiFunction(request);
+
+        // Only update state if this is still the latest request and component is mounted
+        if (isMountedRef.current && lastRequestRef.current === requestId) {
+          setData(result);
+          setError(null);
+
+          // Cache the result if enabled
+          if (options.enableCache !== false) {
+            const cacheKey = getCacheKey(request);
+            paginationCache.set(cacheKey, {
+              data: result,
+              timestamp: Date.now(),
+              pageRequest: request,
+            });
+          }
+        }
+      } catch (err) {
+        // Only update error state if this is still the latest request and component is mounted
+        if (isMountedRef.current && lastRequestRef.current === requestId) {
+          const error = err instanceof Error ? err : new Error('An error occurred');
+          setError(error);
+          if (options.onError) {
+            options.onError(error);
+          }
+        }
+      } finally {
+        if (isMountedRef.current && lastRequestRef.current === requestId) {
+          setIsLoading(false);
+        }
+        currentRequestRef.current = null;
       }
-    } finally {
-      if (isMountedRef.current && lastRequestRef.current === requestId) {
-        setIsLoading(false);
-      }
-    }
+    })();
+
+    currentRequestRef.current = requestPromise;
+    return requestPromise;
   }, [apiFunction, options, getCacheKey, isValidCache]);
 
   // Debounced fetch for search
   const debouncedFetchRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
+    // Skip initial effect if not initialized
+    if (!isInitializedRef.current) {
+      isInitializedRef.current = true;
+      
+      // For initial load, fetch immediately
+      fetchData(pageRequest);
+      return;
+    }
+
     // Clear existing timeout
     if (debouncedFetchRef.current) {
       clearTimeout(debouncedFetchRef.current);
@@ -149,7 +171,7 @@ export function usePaginatedApi<T>(
         clearTimeout(debouncedFetchRef.current);
       }
     };
-  }, [fetchData, pageRequest]);
+  }, [pageRequest.page, pageRequest.size, pageRequest.sortBy, pageRequest.sortDirection, pageRequest.search]);
 
   const updatePageRequest = useCallback((updates: Partial<PageRequest>) => {
     setPageRequest(prev => {
@@ -163,10 +185,8 @@ export function usePaginatedApi<T>(
       };
       
       // Only update if the request actually changed
-      if (JSON.stringify(newRequest) !== JSON.stringify(prev)) {
-        return newRequest;
-      }
-      return prev;
+      const hasChanged = JSON.stringify(newRequest) !== JSON.stringify(prev);
+      return hasChanged ? newRequest : prev;
     });
   }, []);
 
@@ -187,7 +207,7 @@ export function usePaginatedApi<T>(
   }, [updatePageRequest]);
 
   const refetch = useCallback((force = false) => {
-    fetchData(pageRequest, force);
+    return fetchData(pageRequest, force);
   }, [fetchData, pageRequest]);
 
   const clearCache = useCallback(() => {

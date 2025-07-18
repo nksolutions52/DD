@@ -49,7 +49,7 @@ const PharmacyPage = () => {
   const handleAddMedicine = async (medicine: Medicine) => {
     try {
       await api.medicines.create(medicine);
-      refetch();
+      refetch(true); // Force refresh to get latest data
       setShowForm(false);
     } catch (error) {
       console.error('Failed to create medicine:', error);
@@ -68,7 +68,10 @@ const PharmacyPage = () => {
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <p className="text-lg text-neutral-500">Loading medicines...</p>
+        <div className="text-center">
+          <div className="spinner mx-auto mb-4"></div>
+          <p className="text-lg text-neutral-500">Loading medicines...</p>
+        </div>
       </div>
     );
   }

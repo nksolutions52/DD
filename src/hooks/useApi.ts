@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import api from '../services/api';
-import { PageRequest } from '../types';
 
 // Simple cache for non-paginated API calls
 const apiCache = new Map<string, { data: any; timestamp: number }>();
@@ -20,68 +19,87 @@ export function useApi<T>(
   const [data, setData] = useState<T | undefined>(options.initialData);
   const [error, setError] = useState<Error | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [lastFetchTime, setLastFetchTime] = useState<number>(0);
-
-  const fetchData = async () => {
-    const cacheKey = options.cacheKey || apiFunction.toString();
-    const now = Date.now();
-    
-    // Check cache first if enabled
-    if (options.enableCache !== false) {
-      const cachedEntry = apiCache.get(cacheKey);
-      if (cachedEntry && (now - cachedEntry.timestamp) < CACHE_DURATION) {
-        setData(cachedEntry.data);
-        setError(null);
-        setIsLoading(false);
-        return;
-      }
-    }
-
-    // Prevent multiple simultaneous requests
-    if (now - lastFetchTime < 100) {
-      return;
-    }
-    setLastFetchTime(now);
-
-    try {
-      setIsLoading(true);
-      const result = await apiFunction();
-      setData(result);
-      setError(null);
-      
-      // Cache the result if enabled
-      if (options.enableCache !== false) {
-        apiCache.set(cacheKey, {
-          data: result,
-          timestamp: now,
-        });
-      }
-    } catch (err) {
-      const error = err instanceof Error ? err : new Error('An error occurred');
-      setError(error);
-      if (options.onError) {
-        options.onError(error);
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  
+  // Use refs to prevent duplicate calls
+  const isMountedRef = useRef(true);
+  const currentRequestRef = useRef<Promise<void> | null>(null);
+  const isInitializedRef = useRef(false);
 
   useEffect(() => {
-    // Only fetch if we don't have cached data or cache is expired
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  const fetchData = useCallback(async (force = false) => {
+    // Prevent duplicate requests
+    if (currentRequestRef.current && !force) {
+      return currentRequestRef.current;
+    }
+
     const cacheKey = options.cacheKey || apiFunction.toString();
-    const cachedEntry = apiCache.get(cacheKey);
     const now = Date.now();
     
-    if (!cachedEntry || (now - cachedEntry.timestamp) >= CACHE_DURATION) {
-      fetchData();
-    } else {
-      // Use cached data
-      setData(cachedEntry.data);
-      setError(null);
-      setIsLoading(false);
+    // Check cache first if enabled and not forced
+    if (options.enableCache !== false && !force) {
+      const cachedEntry = apiCache.get(cacheKey);
+      if (cachedEntry && (now - cachedEntry.timestamp) < CACHE_DURATION) {
+        if (isMountedRef.current) {
+          setData(cachedEntry.data);
+          setError(null);
+          setIsLoading(false);
+        }
+        return Promise.resolve();
+      }
     }
-  }, [options.cacheKey]);
+
+    const requestPromise = (async () => {
+      try {
+        if (isMountedRef.current) {
+          setIsLoading(true);
+          setError(null);
+        }
+
+        const result = await apiFunction();
+        
+        if (isMountedRef.current) {
+          setData(result);
+          setError(null);
+          
+          // Cache the result if enabled
+          if (options.enableCache !== false) {
+            apiCache.set(cacheKey, {
+              data: result,
+              timestamp: now,
+            });
+          }
+        }
+      } catch (err) {
+        if (isMountedRef.current) {
+          const error = err instanceof Error ? err : new Error('An error occurred');
+          setError(error);
+          if (options.onError) {
+            options.onError(error);
+          }
+        }
+      } finally {
+        if (isMountedRef.current) {
+          setIsLoading(false);
+        }
+        currentRequestRef.current = null;
+      }
+    })();
+
+    currentRequestRef.current = requestPromise;
+    return requestPromise;
+  }, [apiFunction, options]);
+
+  useEffect(() => {
+    if (!isInitializedRef.current) {
+      isInitializedRef.current = true;
+      fetchData();
+    }
+  }, [fetchData]);
 
   return { data, error, isLoading, refetch: fetchData };
 }

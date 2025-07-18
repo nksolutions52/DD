@@ -41,8 +41,10 @@ const DashboardPage = () => {
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="spinner"></div>
-        <p className="ml-3 text-lg text-neutral-500">Loading dashboard data...</p>
+        <div className="text-center">
+          <div className="spinner mx-auto mb-4"></div>
+          <p className="text-lg text-neutral-500">Loading dashboard data...</p>
+        </div>
       </div>
     );
   }
