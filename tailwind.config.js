@@ -2,6 +2,10 @@
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
+        '18': '4.5rem',
+        '80': '20rem',
+        '88': '22rem',
+        '96': '24rem',
     extend: {
       screens: {
         'tablet': '640px',

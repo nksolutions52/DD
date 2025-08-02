@@ -54,7 +54,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
       />
 
       <div
-        className={`fixed inset-y-0 left-0 z-20 w-64 max-w-full transform overflow-y-auto glass-sidebar transition-transform lg:translate-x-0 md:w-48 flex flex-col ${
+        className={`fixed inset-y-0 left-0 z-20 w-80 max-w-full transform overflow-y-auto glass-sidebar transition-transform lg:translate-x-0 md:w-64 flex flex-col ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
