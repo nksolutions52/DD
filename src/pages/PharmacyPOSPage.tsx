@@ -646,10 +646,10 @@ const PharmacyPOSPage = () => {
         title="Sale Completed"
         message="The sale was completed successfully."
         confirmText="OK"
-        cancelText=""
+        cancelText="Cancel"
         type="info"
         onConfirm={() => setShowSaleSuccessDialog(false)}
-        onCancel={() => setShowSaleSuccessDialog(false)}
+        onCancel={() => setShowSaleSuccessDialog(false)} // Only close dialog, do not clear POS data
       />
 
       {/* Alert Dialog */}

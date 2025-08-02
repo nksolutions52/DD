@@ -25,8 +25,10 @@ const MedicineForm = ({ medicine, onSubmit, onCancel }: MedicineFormProps) => {
   const [errors, setErrors] = useState<Partial<Record<keyof Medicine, string>>>({});
 
   // Fetch manufacturers and medicine types
-  const { data: manufacturers = [] } = useApi(() => api.manufacturers.getAll());
-  const { data: medicineTypes = [] } = useApi(() => api.medicineTypes.getAll());
+  const { data: manufacturers } = useApi(() => api.manufacturers.getAll());
+  const { data: medicineTypes } = useApi(() => api.medicineTypes.getAll());
+  const safeManufacturers = Array.isArray(manufacturers) ? manufacturers : [];
+  const safeMedicineTypes = Array.isArray(medicineTypes) ? medicineTypes : [];
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -127,7 +129,7 @@ const MedicineForm = ({ medicine, onSubmit, onCancel }: MedicineFormProps) => {
             className={`input w-full ${errors.type ? 'border-red-500' : ''}`}
           >
             <option value="">Select type</option>
-            {medicineTypes.map((type: any) => (
+            {safeMedicineTypes.map((type: any) => (
               <option key={type.id} value={type.name}>
                 {type.name}
               </option>
@@ -149,7 +151,7 @@ const MedicineForm = ({ medicine, onSubmit, onCancel }: MedicineFormProps) => {
             className={`input w-full ${errors.manufacturer ? 'border-red-500' : ''}`}
           >
             <option value="">Select manufacturer</option>
-            {manufacturers.map((manufacturer: any) => (
+            {safeManufacturers.map((manufacturer: any) => (
               <option key={manufacturer.id} value={manufacturer.name}>
                 {manufacturer.name}
               </option>

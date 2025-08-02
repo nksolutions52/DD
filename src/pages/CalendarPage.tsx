@@ -404,7 +404,7 @@ const CalendarPage = () => {
               onClick={() => setViewType('day')}
               className={`btn px-3 py-1 text-sm font-medium rounded-full transition shadow-none ${
                 viewType === 'day'
-                  ? 'btn-gradient text-white'
+                  ? 'btn-gradient text-blue-600'
                   : 'btn-outline text-neutral-600'
               }`}
             >
@@ -414,7 +414,7 @@ const CalendarPage = () => {
               onClick={() => setViewType('week')}
               className={`btn px-3 py-1 text-sm font-medium rounded-full transition shadow-none ${
                 viewType === 'week'
-                  ? 'btn-gradient text-white'
+                  ? 'btn-gradient text-blue-600'
                   : 'btn-outline text-neutral-600'
               }`}
             >
@@ -424,7 +424,7 @@ const CalendarPage = () => {
               onClick={() => setViewType('month')}
               className={`btn px-3 py-1 text-sm font-medium rounded-full transition shadow-none ${
                 viewType === 'month'
-                  ? 'btn-gradient text-white'
+                  ? 'btn-gradient text-blue-600'
                   : 'btn-outline text-neutral-600'
               }`}
             >

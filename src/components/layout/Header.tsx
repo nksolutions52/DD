@@ -85,7 +85,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }: HeaderProps) => {
             
             {/* User dropdown */}
             {userMenuOpen && (
-              <div className="absolute right-0 mt-2 w-56 origin-top-right rounded-lg bg-white shadow-lg ring-1 ring-black/5 border border-neutral-200">
+              <div className="absolute right-0 mt-2 w-56 origin-top-right rounded-lg bg-white shadow-lg ring-1 ring-black/5 border border-neutral-200 z-50">
                 <div className="border-b border-neutral-100 px-4 py-3">
                   <p className="text-sm font-semibold text-neutral-900 truncate">{user?.name}</p>
                   <p className="text-xs text-neutral-500 truncate">{user?.email}</p>
