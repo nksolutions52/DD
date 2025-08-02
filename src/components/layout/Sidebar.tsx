@@ -1,6 +1,5 @@
-import { BarChart3, Calendar, Home, Menu, Users, X, Pill, DollarSign, Settings, UserPlus } from 'lucide-react';
+import { BarChart3, Calendar, Home, Users, X, Pill, DollarSign, Settings, UserPlus } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
-import { ToothLogo } from '../common/ToothLogo';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface SidebarProps {
@@ -11,7 +10,7 @@ interface SidebarProps {
 const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const { user } = useAuth();
 
-    // Get user permissions from role entity
+  // Get user permissions from role entity
   let permissions = user?.roleEntity?.permissions || {};
   if (typeof permissions === 'string') {
     try {
@@ -20,6 +19,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
       permissions = {};
     }
   }
+
   // Define all navigation items with their required permissions
   const allNavigation = [
     { name: 'Dashboard', href: '/dashboard', icon: Home, permission: 'dashboard' },
@@ -35,11 +35,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
 
   // Filter navigation based on user permissions
   const navigation = allNavigation.filter(item => {
-    // If no permissions defined, show all (backward compatibility)
     if (!permissions || Object.keys(permissions).length === 0) {
       return true;
     }
-    // Check if user has permission for this item
     return permissions[item.permission] === true;
   });
 
@@ -47,64 +45,75 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     <>
       {/* Mobile sidebar overlay */}
       <div
-        className={`fixed inset-0 z-20 bg-black/50 backdrop-blur-sm transition-opacity lg:hidden ${
+        className={`fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity lg:hidden ${
           sidebarOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
         }`}
         onClick={() => setSidebarOpen(false)}
       />
 
+      {/* Sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 z-30 w-80 max-w-full transform overflow-y-auto glass-sidebar transition-transform lg:translate-x-0 lg:relative lg:transform-none flex flex-col ${
+        className={`fixed inset-y-0 left-0 z-50 w-80 bg-white border-r border-neutral-200 shadow-lg transform transition-transform lg:translate-x-0 lg:static lg:inset-0 flex flex-col ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="flex h-24 items-center justify-between px-4 border-b border-white/20 flex-shrink-0">
-          <div className="flex items-center space-x-2 sm:space-x-3">
-            {/* <ToothLogo className="h-6 w-6 sm:h-8 sm:w-8" /> */}
-             <img src="images/tooth-logo.svg" alt="Tooth Icon" className="h-8 w-8" />
-            <span className="text-2xl font-bold gradient-text">K-Health</span>
+        {/* Logo Section */}
+        <div className="flex h-20 items-center justify-between px-6 border-b border-neutral-200 bg-white">
+          <div className="flex items-center space-x-3">
+            <img src="images/tooth-logo.svg" alt="Tooth Icon" className="h-8 w-8" />
+            <span className="text-2xl font-bold text-primary-600">K-Health</span>
           </div>
           <button
             type="button"
-            className="rounded-xl p-2 text-neutral-500 hover:bg-white/20 hover:text-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all duration-200 lg:hidden"
+            className="rounded-lg p-2 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 lg:hidden"
             onClick={() => setSidebarOpen(false)}
           >
-            <span className="sr-only">Close sidebar</span>
             <X className="h-6 w-6" />
           </button>
         </div>
 
-        <div className="py-6 px-4 flex-1 overflow-y-auto">
-          <nav className="space-y-2">
+        {/* Navigation */}
+        <div className="flex-1 overflow-y-auto py-6 px-4">
+          <nav className="space-y-1">
             {navigation.map((item) => (
               <NavLink
                 key={item.name}
                 to={item.href}
                 className={({ isActive }) =>
-                  `sidebar-link ${isActive ? 'active' : 'text-neutral-600'}`
+                  `flex items-center space-x-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors ${
+                    isActive
+                      ? 'bg-primary-50 text-primary-700 border-r-2 border-primary-600'
+                      : 'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900'
+                  }`
                 }
                 onClick={() => setSidebarOpen(false)}
               >
-                <item.icon className="h-5 w-5" />
-                <span className="font-medium text-base">{item.name}</span>
+                <item.icon className="h-5 w-5 flex-shrink-0" />
+                <span>{item.name}</span>
               </NavLink>
             ))}
           </nav>
         </div>
 
         {/* User info at bottom */}
-        <div className="p-4 w-full flex-shrink-0">
-          <div className="rounded-2xl bg-gradient-to-r from-primary-500/10 to-purple-500/10 p-4 border border-primary-200/30 backdrop-blur-sm">
-            <div className="flex items-center space-x-3">
-              <div className="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
+        <div className="p-4 border-t border-neutral-200 bg-white">
+          <div className="flex items-center space-x-3 rounded-lg bg-neutral-50 p-3">
+            <div className="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
+              {user?.avatar ? (
+                <img
+                  className="h-10 w-10 rounded-full object-cover"
+                  src={user.avatar}
+                  alt={user.name}
+                />
+              ) : (
                 <Users className="h-5 w-5 text-primary-600" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-neutral-900 truncate">{user?.name}</p>
-                <p className="text-xs text-neutral-600 capitalize truncate">
-                  {user?.roleEntity?.name || user?.role}
-                </p>
-              </div>
+              )}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-neutral-900 truncate">{user?.name}</p>
+              <p className="text-xs text-neutral-600 capitalize truncate">
+                {user?.roleEntity?.name || user?.role}
+              </p>
             </div>
           </div>
         </div>

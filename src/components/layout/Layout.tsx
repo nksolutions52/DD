@@ -8,20 +8,23 @@ const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="h-screen bg-gradient-to-br from-primary-50 via-purple-50 to-accent-50 overflow-hidden flex">
-      {/* Sidebar - responsive for tablets */}
+    <div className="h-screen bg-neutral-50 overflow-hidden flex">
+      {/* Sidebar */}
       <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
       
-      {/* Main Content */}
-      <div className="flex-1 lg:ml-80 flex flex-col overflow-hidden">
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Header */}
         <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
         
-        <main className="flex-1 overflow-auto p-4 lg:p-6 custom-scrollbar bg-gradient-to-br from-primary-50 via-purple-50 to-accent-50">
-          <div className="max-w-full">
+        {/* Main Content */}
+        <main className="flex-1 overflow-auto bg-neutral-50">
+          <div className="p-6">
             <Outlet />
           </div>
         </main>
         
+        {/* Footer */}
         <Footer />
       </div>
     </div>

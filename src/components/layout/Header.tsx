@@ -1,4 +1,4 @@
-import { Bell, HelpCircle, LogOut, Menu, User, ChevronDown } from 'lucide-react';
+import { Bell, LogOut, Menu, User, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useHeaderState } from '../../hooks/usePageHeader';
@@ -11,37 +11,35 @@ interface HeaderProps {
 const Header = ({ sidebarOpen, setSidebarOpen }: HeaderProps) => {
   const { user, logout } = useAuth();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
   const headerConfig = useHeaderState();
 
   return (
-    <header className="glass-header z-20 border-b border-white/20 shadow-lg w-full flex-shrink-0">
-      {/* Main header bar - adjusted for tablet */}
-      <div className="flex h-24 items-center justify-between px-4 lg:px-6">
-        {/* Left: Menu button (mobile) and Logo */}
+    <header className="h-20 bg-white border-b border-neutral-200 shadow-sm flex-shrink-0">
+      <div className="flex h-full items-center justify-between px-6">
+        {/* Left: Menu button (mobile) and Page Title */}
         <div className="flex items-center min-w-0 flex-1">
           <button
             type="button"
-            className="mr-4 rounded-xl p-2 text-neutral-600 hover:bg-white/30 hover:text-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all duration-200 lg:hidden"
+            className="mr-4 rounded-lg p-2 text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 lg:hidden"
             onClick={() => setSidebarOpen(!sidebarOpen)}
           >
-            <span className="sr-only">Open sidebar</span>
             <Menu className="h-6 w-6" />
           </button>
           
+          {/* Mobile Logo */}
           <div className="flex items-center lg:hidden">
             <img src="images/tooth-logo.svg" alt="Tooth Icon" className="h-8 w-8 mr-2" />
-            <span className="text-2xl font-bold gradient-text">K-Health</span>
+            <span className="text-xl font-bold text-primary-600">K-Health</span>
           </div>
 
-          {/* Dynamic page title - only show on larger screens when available */}
+          {/* Page Title - Desktop */}
           {headerConfig && (
-            <div className="hidden lg:block ml-6 min-w-0 flex-1">
-              <h1 className="text-2xl xl:text-3xl font-bold text-neutral-900 truncate">
+            <div className="hidden lg:block min-w-0 flex-1">
+              <h1 className="text-2xl font-bold text-neutral-900 truncate">
                 {headerConfig.title}
               </h1>
               {headerConfig.subtitle && (
-                <p className="text-base text-neutral-500 truncate mt-1">
+                <p className="text-sm text-neutral-500 truncate">
                   {headerConfig.subtitle}
                 </p>
               )}
@@ -49,120 +47,52 @@ const Header = ({ sidebarOpen, setSidebarOpen }: HeaderProps) => {
           )}
         </div>
 
-        {/* Center: Page actions (if any) */}
+        {/* Center: Page actions */}
         {headerConfig?.actions && (
-          <div className="hidden lg:flex items-center mx-4">
+          <div className="hidden lg:flex items-center mx-6">
             {headerConfig.actions}
           </div>
         )}
 
-        {/* Right: User menu, notifications, etc. */}
-        <div className="flex items-center space-x-3 flex-shrink-0">
-          {/* Notifications */}
-          {/* <div className="relative">
-            <button
-              type="button"
-              className="rounded-xl p-1 sm:p-2 text-neutral-600 hover:bg-white/30 hover:text-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all duration-200"
-              onClick={() => setNotificationsOpen(!notificationsOpen)}
-            >
-              <span className="sr-only">View notifications</span>
-              <Bell className="h-5 w-5 sm:h-6 sm:w-6" />
-              <span className="absolute -right-1 -top-1 flex h-4 w-4 sm:h-5 sm:w-5 items-center justify-center rounded-full bg-gradient-to-r from-accent-500 to-accent-600 text-[10px] sm:text-xs font-bold text-white shadow-lg">
-                3
-              </span>
-            </button>
-            
-
-            {notificationsOpen && (
-              <div className="absolute right-0 mt-2 w-72 sm:w-80 origin-top-right rounded-xl sm:rounded-2xl bg-white/95 backdrop-blur-md shadow-2xl ring-1 ring-black/5 focus:outline-none border border-white/20">
-                <div className="py-2">
-                  <div className="border-b border-neutral-200/50 px-3 sm:px-4 py-3">
-                    <h3 className="font-semibold gradient-text text-sm sm:text-base">Notifications</h3>
-                  </div>
-                
-                  <div className="max-h-48 sm:max-h-60 overflow-y-auto custom-scrollbar">
-                    <div className="border-b border-neutral-100/50 px-3 sm:px-4 py-3 hover:bg-primary-50/50 transition-colors duration-200">
-                      <p className="text-xs sm:text-sm font-medium text-neutral-900">New appointment scheduled</p>
-                      <p className="text-xs text-neutral-500">Jessica Miller - Today at 10:00 AM</p>
-                    </div>
-                    <div className="border-b border-neutral-100/50 px-3 sm:px-4 py-3 hover:bg-primary-50/50 transition-colors duration-200">
-                      <p className="text-xs sm:text-sm font-medium text-neutral-900">Appointment rescheduled</p>
-                      <p className="text-xs text-neutral-500">David Wilson - Yesterday at 3:45 PM</p>
-                    </div>
-                    <div className="px-3 sm:px-4 py-3 hover:bg-primary-50/50 transition-colors duration-200">
-                      <p className="text-xs sm:text-sm font-medium text-neutral-900">New patient registered</p>
-                      <p className="text-xs text-neutral-500">Emily Taylor - 2 days ago</p>
-                    </div>
-                  </div>
-                  <div className="border-t border-neutral-200/50 px-3 sm:px-4 py-3 text-center">
-                    <button className="text-xs font-medium text-primary-600 hover:text-primary-700 transition-colors duration-200">
-                      View all notifications
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div> */}
-
-          {/* Help */}
-          {/* <button
-            type="button"
-            className="rounded-xl p-1 sm:p-2 text-neutral-600 hover:bg-white/30 hover:text-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all duration-200 hidden sm:block"
-          >
-            <span className="sr-only">Help</span>
-            <HelpCircle className="h-5 w-5 sm:h-6 sm:w-6" />
-          </button> */}
-
+        {/* Right: User menu */}
+        <div className="flex items-center space-x-4 flex-shrink-0">
           {/* User menu */}
           <div className="relative">
             <button
               type="button"
-              className="flex items-center space-x-3 rounded-xl p-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all duration-200 hover:shadow-lg hover:bg-white/20"
+              className="flex items-center space-x-3 rounded-lg p-2 hover:bg-neutral-50 transition-colors"
               onClick={() => setUserMenuOpen(!userMenuOpen)}
             >
-              <span className="sr-only">Open user menu</span>
               {user?.avatar ? (
                 <img
-                  className="h-12 w-12 rounded-xl object-cover shadow-lg border-2 border-white/50"
+                  className="h-10 w-10 rounded-full object-cover border-2 border-neutral-200"
                   src={user.avatar}
                   alt={user.name}
                 />
               ) : (
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary-100 to-purple-100 text-primary-700 shadow-lg border-2 border-white/50">
-                  <User className="h-6 w-6" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-100 text-primary-600 border-2 border-neutral-200">
+                  <User className="h-5 w-5" />
                 </div>
               )}
               <div className="hidden lg:block text-left">
                 <p className="text-sm font-semibold text-neutral-900 truncate">{user?.name}</p>
-                <p className="text-xs text-neutral-600 capitalize truncate">
+                <p className="text-xs text-neutral-500 capitalize truncate">
                   {user?.roleEntity?.name || user?.role}
                 </p>
               </div>
-              <ChevronDown className={`h-4 w-4 text-neutral-600 transition-transform duration-200 ${userMenuOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`h-4 w-4 text-neutral-500 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
             </button>
             
             {/* User dropdown */}
             {userMenuOpen && (
-              <div className="absolute right-0 mt-3 w-56 origin-top-right rounded-2xl bg-white/95 backdrop-blur-md py-2 shadow-2xl ring-1 ring-black/5 focus:outline-none border border-white/20">
-                <div className="border-b border-neutral-200/50 px-4 py-3">
+              <div className="absolute right-0 mt-2 w-56 origin-top-right rounded-lg bg-white shadow-lg ring-1 ring-black/5 border border-neutral-200">
+                <div className="border-b border-neutral-100 px-4 py-3">
                   <p className="text-sm font-semibold text-neutral-900 truncate">{user?.name}</p>
                   <p className="text-xs text-neutral-500 truncate">{user?.email}</p>
                 </div>
-                {/* <a
-                  href="#"
-                  className="block px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-neutral-700 hover:bg-primary-50/50 transition-colors duration-200"
-                >
-                  Your Profile
-                </a>
-                <a
-                  href="#"
-                  className="block px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-neutral-700 hover:bg-primary-50/50 transition-colors duration-200"
-                >
-                  Settings
-                </a> */}
                 <button
                   onClick={logout}
-                  className="flex w-full items-center px-4 py-3 text-sm text-neutral-700 hover:bg-error-50/50 hover:text-error-600 transition-colors duration-200"
+                  className="flex w-full items-center px-4 py-3 text-sm text-neutral-700 hover:bg-neutral-50 transition-colors"
                 >
                   <LogOut className="mr-3 h-4 w-4" />
                   Sign out
@@ -175,14 +105,14 @@ const Header = ({ sidebarOpen, setSidebarOpen }: HeaderProps) => {
 
       {/* Mobile page title and actions */}
       {headerConfig && (
-        <div className="lg:hidden border-t border-white/20 px-4 py-4">
+        <div className="lg:hidden border-t border-neutral-200 px-6 py-4 bg-white">
           <div className="flex flex-col space-y-3">
-            <div className="min-w-0 flex-1">
-              <h1 className="text-2xl font-bold text-neutral-900 truncate">
+            <div>
+              <h1 className="text-xl font-bold text-neutral-900 truncate">
                 {headerConfig.title}
               </h1>
               {headerConfig.subtitle && (
-                <p className="text-base text-neutral-500 truncate">
+                <p className="text-sm text-neutral-500 truncate">
                   {headerConfig.subtitle}
                 </p>
               )}
