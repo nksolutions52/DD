@@ -472,7 +472,7 @@ const ConfigurePage = () => {
 
       {/* Manufacturer Modal */}
       {showManufacturerModal && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-md p-4" style={{ backdropFilter: 'blur(8px)' }}>
+        <div className="modal-overlay">
           <div className="w-full max-w-md rounded-xl sm:rounded-2xl bg-white p-6 sm:p-8 shadow-2xl border border-neutral-200">
             <h2 className="mb-6 text-lg sm:text-xl font-bold text-neutral-900">
               {editingManufacturer ? 'Edit Manufacturer' : 'Add New Manufacturer'}
@@ -525,7 +525,7 @@ const ConfigurePage = () => {
 
       {/* Medicine Type Modal */}
       {showMedicineTypeModal && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-md p-4" style={{ backdropFilter: 'blur(8px)' }}>
+        <div className="modal-overlay">
           <div className="w-full max-w-md rounded-xl sm:rounded-2xl bg-white p-6 sm:p-8 shadow-2xl border border-neutral-200">
             <h2 className="mb-6 text-lg sm:text-xl font-bold text-neutral-900">
               {editingMedicineType ? 'Edit Medicine Type' : 'Add New Medicine Type'}

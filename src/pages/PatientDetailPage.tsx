@@ -843,7 +843,7 @@ const PatientDetailPage = () => {
 
       {/* Patient Form Modal */}
       {isEditing && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-md p-4" style={{ backdropFilter: 'blur(8px)' }}>
+        <div className="modal-overlay">
           <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl border border-neutral-200 max-h-[90vh] overflow-y-auto custom-scrollbar">
             <h2 className="mb-6 text-2xl font-bold gradient-text">
               Edit Patient
@@ -859,7 +859,7 @@ const PatientDetailPage = () => {
 
       {/* Prescription Form Modal */}
       {showPrescriptionForm && selectedAppointment && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-md p-4" style={{ backdropFilter: 'blur(8px)' }}>
+        <div className="modal-overlay">
           <div className="w-full max-w-3xl rounded-2xl bg-white p-8 shadow-2xl border border-neutral-200 max-h-[90vh] overflow-y-auto custom-scrollbar">
             <h2 className="mb-4 text-xl font-bold">Add New Prescription</h2>
             <PrescriptionForm
@@ -876,7 +876,7 @@ const PatientDetailPage = () => {
 
       {/* Payment Modal */}
       {showPaymentModal && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-md p-4" style={{ backdropFilter: 'blur(8px)' }}>
+        <div className="modal-overlay">
           <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl border border-neutral-200">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-neutral-900">Update Payment</h2>
@@ -936,7 +936,7 @@ const PatientDetailPage = () => {
 
       {/* Complete Appointment Modal */}
       {showCompleteModal && appointmentToComplete && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-md p-4" style={{ backdropFilter: 'blur(8px)' }}>
+        <div className="modal-overlay">
           <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl border border-neutral-200">
             <h2 className="text-lg font-semibold mb-4">Mark Appointment as Completed?</h2>
             <p className="mb-6">Are you sure you want to mark this appointment as completed?</p>
@@ -966,7 +966,7 @@ const PatientDetailPage = () => {
 
       {/* Treatment Form Modal */}
       {showTreatmentForm && selectedTreatmentAppointment && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-md p-4" style={{ backdropFilter: 'blur(8px)' }}>
+        <div className="modal-overlay">
           <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl border border-neutral-200">
             <h2 className="mb-4 text-xl font-bold">Add Treatment</h2>
             <div className="mb-4">

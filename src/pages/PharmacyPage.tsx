@@ -315,7 +315,7 @@ const PharmacyPage = () => {
 
       {/* Medicine Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-md p-4" style={{ backdropFilter: 'blur(8px)' }}>
+        <div className="modal-overlay">
           <div
             className="
         w-full max-w-5xl

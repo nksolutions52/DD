@@ -47,7 +47,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   const styles = getTypeStyles();
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-md p-4" style={{ backdropFilter: 'blur(8px)' }}>
+    <div className="modal-overlay">
       <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl border border-neutral-200">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
