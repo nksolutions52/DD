@@ -167,9 +167,14 @@ export function usePatients() {
 
 export function usePatient(id: number) {
   return useApi(async () => {
-    const response = await api.patients.getById(id);
-    // Don't throw error for empty arrays, let the component handle it
-    return response;
+    try {
+      const response = await api.patients.getById(id);
+      console.log('usePatient: API response for id', id, ':', response);
+      return response;
+    } catch (error) {
+      console.error('usePatient: Error fetching patient', id, ':', error);
+      throw error;
+    }
   }, {
     enableCache: true,
     cacheKey: `patient-${id}`,

@@ -158,6 +158,7 @@ const PatientDetailPage = () => {
 
   // --- Render Loading/Error States First ---
   if (isLoadingPatient) {
+    console.log('PatientDetailPage: Loading patient...');
     return (
       <div className="flex h-64 items-center justify-center">
         <div className="text-center">
@@ -169,6 +170,7 @@ const PatientDetailPage = () => {
   }
 
   if (patientError) {
+    console.log('PatientDetailPage: Patient error:', patientError);
     return (
       <div className="flex h-64 flex-col items-center justify-center space-y-4">
         <p className="text-lg text-error-500">Error loading patient: {patientError.message}</p>
@@ -181,7 +183,8 @@ const PatientDetailPage = () => {
   }
 
   // Check if patient exists and is not null/undefined
-  if (!patient || (typeof patient === 'object' && Object.keys(patient).length === 0)) {
+  if (!patient || !patient.id) {
+    console.log('PatientDetailPage: Patient not found or invalid:', patient);
     return (
       <div className="flex h-64 flex-col items-center justify-center space-y-4">
         <p className="text-lg text-error-500">Patient not found.</p>
@@ -192,6 +195,8 @@ const PatientDetailPage = () => {
       </div>
     );
   }
+
+  console.log('PatientDetailPage: Rendering patient details for:', patient);
 
   // Once patient data is confirmed, proceed with rendering the details
   const prescriptionsByAppointment = prescriptions.reduce((acc, prescription) => {

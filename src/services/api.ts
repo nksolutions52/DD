@@ -127,18 +127,18 @@ export const patients = {
     try {
       console.log('API: Fetching patient with id:', id);
       const response = await api.get(`/patients/${id}`);
-      console.log('API: Raw response:', response);
+      console.log('API: Patient response data:', response.data);
       
       if (!response.data) {
-        console.log('API: No data in response');
-        return null;
+        console.log('API: No data in response, throwing error');
+        throw new Error('Patient not found');
       }
       
-      console.log('API: Returning patient data:', response.data);
       return response.data;
     } catch (error: any) {
       if (error.response?.status === 404) {
-        return null;
+        console.log('API: Patient not found (404)');
+        throw new Error('Patient not found');
       }
       console.error('Error fetching patient:', error);
       throw new Error(error.response?.data?.message || 'Failed to fetch patient');
