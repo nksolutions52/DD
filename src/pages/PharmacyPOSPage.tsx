@@ -489,8 +489,8 @@ const PharmacyPOSPage = () => {
 
       {/* Medicine Search Results Modal */}
       {searchResults.length > 0 && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="w-full max-w-2xl rounded-xl sm:rounded-2xl bg-white p-4 sm:p-6 shadow-2xl border border-white/20 max-h-[80vh] overflow-y-auto">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-md p-4" style={{ backdropFilter: 'blur(8px)' }}>
+          <div className="w-full max-w-2xl rounded-xl sm:rounded-2xl bg-white p-4 sm:p-6 shadow-2xl border border-neutral-200 max-h-[80vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-base sm:text-lg font-semibold text-neutral-900">Select Medicine</h3>
               <button
@@ -532,8 +532,8 @@ const PharmacyPOSPage = () => {
 
       {/* Customer Form Modal */}
       {showCustomerFormModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md rounded-xl sm:rounded-2xl bg-white p-4 sm:p-6 shadow-2xl border border-white/20 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-md p-4" style={{ backdropFilter: 'blur(8px)' }}>
+          <div className="w-full max-w-md rounded-xl sm:rounded-2xl bg-white p-4 sm:p-6 shadow-2xl border border-neutral-200 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-base sm:text-lg font-semibold text-neutral-900">Add New Customer</h3>
               <button

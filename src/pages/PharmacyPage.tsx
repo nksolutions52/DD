@@ -315,16 +315,15 @@ const PharmacyPage = () => {
 
       {/* Medicine Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-md p-4" style={{ backdropFilter: 'blur(8px)' }}>
           <div
             className="
         w-full max-w-5xl
         rounded-2xl
-        bg-white/95
-        backdrop-blur-md
+        bg-white
         p-10
         shadow-2xl
-        border border-white/20
+        border border-neutral-200
         my-12
         overflow-visible
       "

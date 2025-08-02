@@ -470,8 +470,8 @@ const AppointmentsPage = () => {
 
       {/* Appointment Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="w-full max-w-3xl rounded-2xl bg-white/95 backdrop-blur-md p-8 shadow-2xl border border-white/20">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-md p-4" style={{ backdropFilter: 'blur(8px)' }}>
+          <div className="w-full max-w-3xl rounded-2xl bg-white p-8 shadow-2xl border border-neutral-200">
            <h2 className="mb-6 text-2xl font-bold gradient-text">Schedule An Appointment</h2>
             <AppointmentForm
               appointment={editingAppointment || undefined}
@@ -487,8 +487,8 @@ const AppointmentsPage = () => {
 
       {/* Cancel Appointment Modal */}
       {showCancelModal && appointmentToCancel && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl border border-white/20">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-md p-4" style={{ backdropFilter: 'blur(8px)' }}>
+          <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl border border-neutral-200">
             <h2 className="text-lg font-semibold mb-4 text-error-700">Cancel Appointment</h2>
             <p className="mb-6">Are you sure you want to cancel this appointment?</p>
             <div className="flex justify-end space-x-3">
