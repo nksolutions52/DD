@@ -54,15 +54,15 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
       />
 
       <div
-        className={`fixed inset-y-0 left-0 z-20 w-80 max-w-full transform overflow-y-auto glass-sidebar transition-transform lg:translate-x-0 md:w-64 flex flex-col ${
+        className={`fixed inset-y-0 left-0 z-30 w-80 max-w-full transform overflow-y-auto glass-sidebar transition-transform lg:translate-x-0 md:w-64 flex flex-col ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="flex h-14 sm:h-16 items-center justify-between px-3 sm:px-4 border-b border-white/20 flex-shrink-0">
+        <div className="flex h-18 sm:h-20 items-center justify-between px-3 sm:px-4 border-b border-white/20 flex-shrink-0">
           <div className="flex items-center space-x-2 sm:space-x-3">
             {/* <ToothLogo className="h-6 w-6 sm:h-8 sm:w-8" /> */}
              <img src="images/tooth-logo.svg" alt="Tooth Icon" className="h-6 w-6 sm:h-8 sm:w-8" />
-            <span className="text-lg sm:text-xl font-bold gradient-text">K-Health</span>
+            <span className="text-xl sm:text-2xl font-bold gradient-text">K-Health</span>
           </div>
           <button
             type="button"

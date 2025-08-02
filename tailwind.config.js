@@ -14,6 +14,13 @@ export default {
         'xl-tablet': {'min': '1024px', 'max': '1279px'},
         'tablet-only': {'min': '640px', 'max': '1023px'},
       },
+      spacing: {
+        '18': '4.5rem',
+        '20': '5rem',
+        '80': '20rem',
+        '88': '22rem',
+        '96': '24rem',
+      },
       colors: {
         primary: {
           50:  '#eaf3fb',

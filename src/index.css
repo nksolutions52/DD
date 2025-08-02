@@ -247,6 +247,15 @@
   }
 }
 
+/* Header height utilities */
+.h-18 {
+  height: 4.5rem;
+}
+
+.h-20 {
+  height: 5rem;
+}
+
 /* Tablet improvements */
 @media (min-width: 641px) and (max-width: 1024px) {
   .container-responsive {

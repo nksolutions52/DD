@@ -1,4 +1,4 @@
-import { Bell, HelpCircle, LogOut, Menu, User } from 'lucide-react';
+import { Bell, HelpCircle, LogOut, Menu, User, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useHeaderState } from '../../hooks/usePageHeader';
@@ -15,9 +15,9 @@ const Header = ({ sidebarOpen, setSidebarOpen }: HeaderProps) => {
   const headerConfig = useHeaderState();
 
   return (
-    <header className="glass-header z-10 border-b border-white/20 shadow-lg w-full">
+    <header className="glass-header z-20 border-b border-white/20 shadow-lg w-full">
       {/* Main header bar - adjusted for tablet */}
-      <div className="flex h-14 sm:h-16 items-center justify-between px-3 sm:px-4 md:px-4 lg:px-6">
+      <div className="flex h-18 sm:h-20 items-center justify-between px-3 sm:px-4 md:px-4 lg:px-6">
         {/* Left: Menu button (mobile) and Logo */}
         <div className="flex items-center min-w-0 flex-1">
           <button
@@ -30,17 +30,18 @@ const Header = ({ sidebarOpen, setSidebarOpen }: HeaderProps) => {
           </button>
           
           <div className="flex items-center lg:hidden">
-            <span className="text-lg sm:text-xl font-bold gradient-text">K-Health</span>
+            <img src="images/tooth-logo.svg" alt="Tooth Icon" className="h-6 w-6 sm:h-8 sm:w-8 mr-2" />
+            <span className="text-xl sm:text-2xl font-bold gradient-text">K-Health</span>
           </div>
 
           {/* Dynamic page title - only show on larger screens when available */}
           {headerConfig && (
             <div className="hidden lg:block ml-4 lg:ml-6 min-w-0 flex-1">
-              <h1 className="text-lg md:text-xl xl:text-2xl font-bold text-neutral-900 truncate">
+              <h1 className="text-xl md:text-2xl xl:text-3xl font-bold text-neutral-900 truncate">
                 {headerConfig.title}
               </h1>
               {headerConfig.subtitle && (
-                <p className="text-xs md:text-sm text-neutral-500 truncate mt-1">
+                <p className="text-sm md:text-base text-neutral-500 truncate mt-1">
                   {headerConfig.subtitle}
                 </p>
               )}
@@ -116,26 +117,27 @@ const Header = ({ sidebarOpen, setSidebarOpen }: HeaderProps) => {
           <div className="relative">
             <button
               type="button"
-              className="flex items-center rounded-xl p-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all duration-200 hover:shadow-lg"
+              className="flex items-center space-x-2 rounded-xl p-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all duration-200 hover:shadow-lg hover:bg-white/20"
               onClick={() => setUserMenuOpen(!userMenuOpen)}
             >
               <span className="sr-only">Open user menu</span>
               {user?.avatar ? (
                 <img
-                  className="h-8 w-8 sm:h-10 sm:w-10 rounded-xl object-cover shadow-lg border-2 border-white/50"
+                  className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl object-cover shadow-lg border-2 border-white/50"
                   src={user.avatar}
                   alt={user.name}
                 />
               ) : (
-                <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary-100 to-purple-100 text-primary-700 shadow-lg border-2 border-white/50">
-                  <User className="h-4 w-4 sm:h-5 sm:w-5" />
+                <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary-100 to-purple-100 text-primary-700 shadow-lg border-2 border-white/50">
+                  <User className="h-5 w-5 sm:h-6 sm:w-6" />
                 </div>
               )}
+              <ChevronDown className={`h-4 w-4 text-neutral-600 transition-transform duration-200 ${userMenuOpen ? 'rotate-180' : ''}`} />
             </button>
             
             {/* User dropdown */}
             {userMenuOpen && (
-              <div className="absolute right-0 mt-2 w-48 sm:w-56 origin-top-right rounded-xl sm:rounded-2xl bg-white/95 backdrop-blur-md py-2 shadow-2xl ring-1 ring-black/5 focus:outline-none border border-white/20">
+              <div className="absolute right-0 mt-3 w-48 sm:w-56 origin-top-right rounded-xl sm:rounded-2xl bg-white/95 backdrop-blur-md py-2 shadow-2xl ring-1 ring-black/5 focus:outline-none border border-white/20">
                 <div className="border-b border-neutral-200/50 px-3 sm:px-4 py-3">
                   <p className="text-xs sm:text-sm font-semibold text-neutral-900 truncate">{user?.name}</p>
                   <p className="text-xs text-neutral-500 truncate">{user?.email}</p>
@@ -167,14 +169,14 @@ const Header = ({ sidebarOpen, setSidebarOpen }: HeaderProps) => {
 
       {/* Mobile page title and actions */}
       {headerConfig && (
-        <div className="lg:hidden border-t border-white/20 px-3 sm:px-4 py-3">
+        <div className="lg:hidden border-t border-white/20 px-3 sm:px-4 py-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
             <div className="min-w-0 flex-1">
-              <h1 className="text-lg sm:text-xl font-bold text-neutral-900 truncate">
+              <h1 className="text-xl sm:text-2xl font-bold text-neutral-900 truncate">
                 {headerConfig.title}
               </h1>
               {headerConfig.subtitle && (
-                <p className="text-xs sm:text-sm text-neutral-500 truncate">
+                <p className="text-sm sm:text-base text-neutral-500 truncate">
                   {headerConfig.subtitle}
                 </p>
               )}
