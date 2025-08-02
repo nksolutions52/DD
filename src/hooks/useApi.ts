@@ -16,7 +16,7 @@ export function useApi<T>(
   apiFunction: () => Promise<T>,
   options: UseApiOptions<T> = {}
 ) {
-  const [data, setData] = useState<T | null>(options.initialData || null);
+  const [data, setData] = useState<T | null>(options.initialData ?? null);
   const [error, setError] = useState<Error | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   
@@ -24,8 +24,10 @@ export function useApi<T>(
   const isMountedRef = useRef(true);
   const abortControllerRef = useRef<AbortController | null>(null);
   const lastRequestRef = useRef<string>('');
+  const hasInitializedRef = useRef(false);
 
   useEffect(() => {
+    isMountedRef.current = true;
     return () => {
       isMountedRef.current = false;
       if (abortControllerRef.current) {
@@ -38,9 +40,9 @@ export function useApi<T>(
     const cacheKey = options.cacheKey || apiFunction.toString();
     const requestKey = `${cacheKey}-${force}`;
     
-    // Prevent duplicate requests
-    if (lastRequestRef.current === requestKey && !force) {
-      setIsLoading(false); // Ensure loading is false for duplicate requests
+    // Prevent duplicate requests only if we've already initialized
+    if (lastRequestRef.current === requestKey && !force && hasInitializedRef.current) {
+      console.log('Preventing duplicate request:', requestKey);
       return;
     }
     
@@ -57,7 +59,7 @@ export function useApi<T>(
     
     try {
       // Check cache first if enabled and not forced
-      if (options.enableCache !== false && !force) {
+      if (options.enableCache !== false && !force && hasInitializedRef.current) {
         const cachedEntry = apiCache.get(cacheKey);
         if (cachedEntry && (now - cachedEntry.timestamp) < CACHE_DURATION) {
           console.log('Using cached data for:', cacheKey);
@@ -78,10 +80,13 @@ export function useApi<T>(
 
       const result = await apiFunction();
       console.log('API response received:', result);
+      
       if (isMountedRef.current) {
-        // Always set data, even if it's an empty array or null
+        // Set data first, then update loading state
         setData(result);
         setError(null);
+        hasInitializedRef.current = true;
+        
         // Cache the result if enabled
         if (options.enableCache !== false) {
           apiCache.set(cacheKey, {
@@ -89,6 +94,9 @@ export function useApi<T>(
             timestamp: now,
           });
         }
+        
+        // Set loading to false after data is set
+        setIsLoading(false);
       }
     } catch (err: any) {
       // Don't handle aborted requests as errors
@@ -99,21 +107,17 @@ export function useApi<T>(
       if (isMountedRef.current) {
         const error = err instanceof Error ? err : new Error('An error occurred');
         setError(error);
+        hasInitializedRef.current = true;
+        setIsLoading(false);
         if (options.onError) {
           options.onError(error);
         }
-      }
-    } finally {
-      // Always set isLoading to false
-      if (isMountedRef.current) {
-        setIsLoading(false);
       }
     }
   }, [apiFunction, options]);
 
   useEffect(() => {
     fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return { data, error, isLoading, refetch: fetchData };

@@ -235,12 +235,15 @@ const PatientDetailPage = () => {
   }
 
   // Patient not found state - only show this if we're not loading and have no patient data
-  if (!patient) {
+  if (!patient && !isLoadingPatient) {
     console.log('PatientDetailPage: No patient data received');
     return (
       <div className="flex h-64 flex-col items-center justify-center space-y-4">
         <p className="text-lg text-error-500">Patient not found</p>
         <p className="text-sm text-neutral-500">Patient ID: {patientId}</p>
+        <p className="text-xs text-neutral-400">
+          Debug: isLoading={isLoadingPatient.toString()}, hasError={!!patientError}, patient={patient ? 'exists' : 'null'}
+        </p>
         <Link to="/patients" className="btn btn-primary">
           <ChevronLeft className="h-4 w-4 mr-2" />
           Back to Patients List

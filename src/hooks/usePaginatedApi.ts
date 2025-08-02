@@ -47,6 +47,7 @@ export function usePaginatedApi<T>(
   const isMountedRef = useRef(true);
   const abortControllerRef = useRef<AbortController | null>(null);
   const lastRequestIdRef = useRef<string>('');
+  const hasInitializedRef = useRef(false);
 
   useEffect(() => {
     isMountedRef.current = true;
@@ -66,8 +67,8 @@ export function usePaginatedApi<T>(
   const fetchData = useCallback(async (request: PageRequest, force = false) => {
     const requestId = JSON.stringify(request) + (force ? '-force' : '');
     
-    // Prevent duplicate requests
-    if (lastRequestIdRef.current === requestId) {
+    // Prevent duplicate requests only if we've already initialized
+    if (lastRequestIdRef.current === requestId && hasInitializedRef.current) {
       console.log('Preventing duplicate request:', requestId);
       return;
     }
@@ -83,7 +84,7 @@ export function usePaginatedApi<T>(
 
     try {
       // Check cache first if enabled and not forced
-      if (options.enableCache !== false && !force) {
+      if (options.enableCache !== false && !force && hasInitializedRef.current) {
         const cacheKey = getCacheKey(request);
         const cachedEntry = paginationCache.get(cacheKey);
         
@@ -129,6 +130,7 @@ export function usePaginatedApi<T>(
         console.log('Updating component state with data');
         setData(result);
         setError(null);
+        hasInitializedRef.current = true;
         // Force loading to false immediately
         setIsLoading(false);
         console.log('Loading state set to false');
@@ -154,17 +156,12 @@ export function usePaginatedApi<T>(
       if (isMountedRef.current) {
         const error = err instanceof Error ? err : new Error('An error occurred');
         setError(error);
+        hasInitializedRef.current = true;
         setIsLoading(false);
         console.log('Loading state set to false due to error');
         if (options.onError) {
           options.onError(error);
         }
-      }
-    } finally {
-      // Ensure loading is always set to false
-      if (isMountedRef.current) {
-        setIsLoading(false);
-        console.log('Loading state set to false in finally block');
       }
     }
   }, [apiFunction, options, getCacheKey]);
