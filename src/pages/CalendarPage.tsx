@@ -36,6 +36,7 @@ const CalendarPage = () => {
   } = useApi(getAppointments, {
     cacheKey: `calendar-${viewType}-${year}-${month}-${formattedDate}`,
     enableCache: false,
+    initialData: [],
   });
 
   // Set page header with actions
@@ -120,7 +121,7 @@ const CalendarPage = () => {
       for (let i = 0; i < 7; i++) {
         const cloneDay = day;
         const formattedDate = format(cloneDay, 'yyyy-MM-dd');
-        const dayAppointments = appointments.filter((a: Appointment) => a.date === formattedDate);
+        const dayAppointments = (appointments || []).filter((a: Appointment) => a.date === formattedDate);
 
         days.push(
           <div
@@ -232,7 +233,7 @@ const CalendarPage = () => {
           </div>
           {/* Appointment slots for each day */}
           {weekDays.map((day) => {
-            const dayAppointments = appointments.filter(
+            const dayAppointments = (appointments || []).filter(
               (a: Appointment) => a.date === format(day, 'yyyy-MM-dd')
             );
             return (
@@ -288,7 +289,7 @@ const CalendarPage = () => {
       if (hour !== 22) slots.push(`${hour.toString().padStart(2, '0')}:30`);
     }
 
-    const dayAppointments = appointments.filter(
+    const dayAppointments = (appointments || []).filter(
       (a: Appointment) => a.date === format(currentDate, 'yyyy-MM-dd')
     );
 

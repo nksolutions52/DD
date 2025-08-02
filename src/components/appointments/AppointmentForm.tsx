@@ -91,9 +91,15 @@ const AppointmentForm = ({ appointment, onSubmit, onCancel }: AppointmentFormPro
       return;
     }
     const timeout = setTimeout(async () => {
-      const results = await api.patients.getBySearch(patientNameInput);
-      setPatientOptions(results);
-      setShowPatientDropdown(results.length > 0);
+      try {
+        const results = await api.patients.getBySearch(patientNameInput);
+        setPatientOptions(results || []);
+        setShowPatientDropdown((results || []).length > 0);
+      } catch (error) {
+        console.error('Failed to search patients:', error);
+        setPatientOptions([]);
+        setShowPatientDropdown(false);
+      }
     }, 300);
     return () => clearTimeout(timeout);
   }, [patientNameInput]);

@@ -20,18 +20,6 @@ const PatientsPage = () => {
   } = usePaginatedApi(
     async (pageRequest: PageRequest, options?: { signal?: AbortSignal }) => {
       const result = await api.patients.getAll(pageRequest, options);
-      if (Array.isArray(result)) {
-        return {
-          content: result,
-          page: 0,
-          totalPages: 1,
-          totalElements: result.length,
-          size: result.length,
-          first: true,
-          last: true,
-          empty: result.length === 0,
-        };
-      }
       return result;
     },
     {
@@ -45,9 +33,9 @@ const PatientsPage = () => {
 
   const [showForm, setShowForm] = useState(false);
 
-  const patients = paginatedData?.content || [];
-  const totalPages = paginatedData?.totalPages || 0;
-  const currentPage = (paginatedData?.page || 0) + 1; // Convert from 0-based to 1-based
+  const patients = paginatedData.content || [];
+  const totalPages = paginatedData.totalPages || 0;
+  const currentPage = (paginatedData.page || 0) + 1; // Convert from 0-based to 1-based
 
   // Set page header with actions
   usePageHeader({
@@ -88,13 +76,13 @@ const PatientsPage = () => {
   console.log('PatientsPage render:', { 
     isLoading, 
     isLoadingValue: isLoading,
-    hasData: !!paginatedData, 
+    hasData: !!paginatedData.content, 
     paginatedData,
     patients: patients.length,
     totalPages,
     currentPage,
     error: !!error,
-    dataContent: paginatedData?.content?.length || 0
+    dataContent: paginatedData.content?.length || 0
   });
 
   if (isLoading) {

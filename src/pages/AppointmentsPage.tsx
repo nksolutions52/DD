@@ -31,9 +31,9 @@ const AppointmentsPage = () => {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [appointmentToCancel, setAppointmentToCancel] = useState<Appointment | null>(null);
 
-  const appointments = paginatedData?.content || [];
-  const totalPages = paginatedData?.totalPages || 0;
-  const currentPage = (paginatedData?.page || 0) + 1; // Convert from 0-based to 1-based
+  const appointments = paginatedData.content || [];
+  const totalPages = paginatedData.totalPages || 0;
+  const currentPage = (paginatedData.page || 0) + 1; // Convert from 0-based to 1-based
 
   // Filter appointments based on status filter (search is handled by backend)
   const filteredAppointments = appointments.filter((appointment:any) => {
@@ -121,7 +121,7 @@ const AppointmentsPage = () => {
   // Debug logging
   console.log('AppointmentsPage render:', { 
     isLoading, 
-    hasData: !!paginatedData, 
+    hasData: !!paginatedData.content, 
     paginatedData,
     appointments: appointments.length,
     totalPages,

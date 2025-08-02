@@ -26,9 +26,9 @@ const PharmacyPage = () => {
 
   const [showForm, setShowForm] = useState(false);
 
-  const medicines = paginatedData?.content || [];
-  const totalPages = paginatedData?.totalPages || 0;
-  const currentPage = (paginatedData?.page || 0) + 1; // Convert from 0-based to 1-based
+  const medicines = paginatedData.content || [];
+  const totalPages = paginatedData.totalPages || 0;
+  const currentPage = (paginatedData.page || 0) + 1; // Convert from 0-based to 1-based
 
   // Set page header with actions
   usePageHeader({
@@ -68,7 +68,7 @@ const PharmacyPage = () => {
   // Debug logging
   console.log('PharmacyPage render:', { 
     isLoading, 
-    hasData: !!paginatedData, 
+    hasData: !!paginatedData.content, 
     medicines: medicines.length,
     totalPages,
     currentPage 

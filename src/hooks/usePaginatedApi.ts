@@ -23,7 +23,16 @@ export function usePaginatedApi<T>(
   apiFunction: (pageRequest: PageRequest) => Promise<PageResponse<T>>,
   options: UsePaginatedApiOptions<T> = {}
 ) {
-  const [data, setData] = useState<PageResponse<T> | null>(null);
+  const [data, setData] = useState<PageResponse<T>>({
+    content: [],
+    page: 0,
+    size: options.initialPageSize || 10,
+    totalElements: 0,
+    totalPages: 0,
+    first: true,
+    last: true,
+    empty: true,
+  });
   const [error, setError] = useState<Error | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [pageRequest, setPageRequest] = useState<PageRequest>({

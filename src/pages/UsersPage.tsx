@@ -41,9 +41,9 @@ const UsersPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const users = paginatedData?.content || [];
-  const totalPages = paginatedData?.totalPages || 0;
-  const currentPage = (paginatedData?.page || 0) + 1; // Convert from 0-based to 1-based
+  const users = paginatedData.content || [];
+  const totalPages = paginatedData.totalPages || 0;
+  const currentPage = (paginatedData.page || 0) + 1; // Convert from 0-based to 1-based
 
   // Dialog states
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -80,7 +80,7 @@ const UsersPage = () => {
   // Debug logging
   console.log('UsersPage render:', { 
     isLoading: isLoadingUsers, 
-    hasData: !!paginatedData, 
+    hasData: !!paginatedData.content, 
     users: users.length,
     totalPages,
     currentPage 

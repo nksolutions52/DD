@@ -134,20 +134,8 @@ export const patients = {
         return null;
       }
       
-      // If response.data is an array with data, return the first item
-      if (Array.isArray(response.data)) {
-        console.log('API: Response is array:', response.data);
-        return response.data.length > 0 ? response.data[0] : null;
-      }
-      
-      // If response.data is a non-empty object, return it
-      if (typeof response.data === 'object') {
-        console.log('API: Response is object:', response.data);
-        return Object.keys(response.data).length > 0 ? response.data : null;
-      }
-      
-      console.log('API: Unknown response format');
-      return null;
+      console.log('API: Returning patient data:', response.data);
+      return response.data;
     } catch (error: any) {
       if (error.response?.status === 404) {
         return null;

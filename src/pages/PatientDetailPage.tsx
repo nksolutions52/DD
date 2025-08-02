@@ -180,8 +180,8 @@ const PatientDetailPage = () => {
     );
   }
 
-  // This check should only happen AFTER loading is complete and no error occurred
-  if (!patient) {
+  // Check if patient exists and is not null/undefined
+  if (!patient || (typeof patient === 'object' && Object.keys(patient).length === 0)) {
     return (
       <div className="flex h-64 flex-col items-center justify-center space-y-4">
         <p className="text-lg text-error-500">Patient not found.</p>

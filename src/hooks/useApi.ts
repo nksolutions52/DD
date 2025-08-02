@@ -16,7 +16,7 @@ export function useApi<T>(
   apiFunction: () => Promise<T>,
   options: UseApiOptions<T> = {}
 ) {
-  const [data, setData] = useState<T | undefined>(options.initialData);
+  const [data, setData] = useState<T | null>(options.initialData || null);
   const [error, setError] = useState<Error | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   
@@ -79,6 +79,7 @@ export function useApi<T>(
       const result = await apiFunction();
       console.log('API response received:', result);
       if (isMountedRef.current) {
+        // Always set data, even if it's an empty array or null
         setData(result);
         setError(null);
         // Cache the result if enabled
@@ -122,6 +123,7 @@ export function useUsers() {
   return useApi(() => api.users.getAll() as Promise<any[]>, {
     enableCache: true,
     cacheKey: 'users-all',
+    initialData: [],
   });
 }
 
@@ -129,6 +131,7 @@ export function useDentists() {
   return useApi(() => api.users.getDentists(), {
     enableCache: true,
     cacheKey: 'dentists',
+    initialData: [],
   });
 }
 
@@ -143,6 +146,7 @@ export function useRoles() {
   return useApi(() => api.roles.getAll(), {
     enableCache: true,
     cacheKey: 'roles',
+    initialData: [],
   });
 }
 
@@ -157,15 +161,14 @@ export function usePatients() {
   return useApi(() => api.patients.getAll() as Promise<any[]>, {
     enableCache: true,
     cacheKey: 'patients-all',
+    initialData: [],
   });
 }
 
 export function usePatient(id: number) {
   return useApi(async () => {
     const response = await api.patients.getById(id);
-    if (Array.isArray(response) && response.length === 0) {
-      throw new Error('Patient not found');
-    }
+    // Don't throw error for empty arrays, let the component handle it
     return response;
   }, {
     enableCache: true,
@@ -177,6 +180,7 @@ export function useAppointments() {
   return useApi(() => api.appointments.getAll() as Promise<any[]>, {
     enableCache: true,
     cacheKey: 'appointments-all',
+    initialData: [],
   });
 }
 
@@ -184,6 +188,7 @@ export function useAppointmentsByDate(date: string) {
   return useApi(() => api.appointments.getByDate(date), {
     enableCache: true,
     cacheKey: `appointments-date-${date}`,
+    initialData: [],
   });
 }
 
@@ -191,6 +196,7 @@ export function useAppointmentsByMonth(year: number, month: number) {
   return useApi(() => api.appointments.getByMonth(year, month), {
     enableCache: true,
     cacheKey: `appointments-month-${year}-${month}`,
+    initialData: [],
   });
 }
 
@@ -198,6 +204,7 @@ export function useAppointmentsByWeek(date: string) {
   return useApi(() => api.appointments.getByWeek(date), {
     enableCache: true,
     cacheKey: `appointments-week-${date}`,
+    initialData: [],
   });
 }
 
@@ -205,6 +212,7 @@ export function useAppointmentsByPatient(patientId: number) {
   return useApi(() => api.appointments.getByPatientId(patientId), {
     enableCache: true,
     cacheKey: `appointments-patient-${patientId}`,
+    initialData: [],
   });
 }
 
@@ -212,6 +220,7 @@ export function useMedicines() {
   return useApi(() => api.medicines.getAll() as Promise<any[]>, {
     enableCache: true,
     cacheKey: 'medicines-all',
+    initialData: [],
   });
 }
 
@@ -226,6 +235,7 @@ export function usePrescriptions() {
   return useApi(() => api.prescriptions.getAll(), {
     enableCache: true,
     cacheKey: 'prescriptions-all',
+    initialData: [],
   });
 }
 
@@ -233,6 +243,7 @@ export function usePrescriptionsByPatient(patientId: number) {
   return useApi(() => api.prescriptions.getByPatientId(patientId), {
     enableCache: true,
     cacheKey: `prescriptions-patient-${patientId}`,
+    initialData: [],
   });
 }
 
@@ -247,6 +258,7 @@ export function useTreatments() {
   return useApi(() => api.treatments.getAll(), {
     enableCache: true,
     cacheKey: 'treatments-all',
+    initialData: [],
   });
 }
 
@@ -261,6 +273,7 @@ export function useTreatmentsByPatient(patientId: number) {
   return useApi(() => api.treatments.getByPatientId(patientId), {
     enableCache: true,
     cacheKey: `treatments-patient-${patientId}`,
+    initialData: [],
   });
 }
 
@@ -268,6 +281,7 @@ export function useAmounts() {
   return useApi(() => api.amounts.getAll(), {
     enableCache: true,
     cacheKey: 'amounts-all',
+    initialData: [],
   });
 }
 
@@ -282,5 +296,6 @@ export function useAmountsByPatient(patientId: number) {
   return useApi(() => api.amounts.getByPatientId(patientId), {
     enableCache: true,
     cacheKey: `amounts-patient-${patientId}`,
+    initialData: [],
   });
 }
