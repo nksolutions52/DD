@@ -160,6 +160,7 @@ const PatientsPage = () => {
                       to={`/patients/${patient.id}`}
                       className="ml-3 p-2 text-primary-600 hover:text-primary-700 hover:bg-primary-50 rounded-lg transition-colors"
                       title="View Details"
+                      onClick={() => console.log('PatientsPage: Navigating to patient detail with ID:', patient.id)}
                     >
                       <Eye className="h-5 w-5" />
                     </Link>
@@ -241,6 +242,7 @@ const PatientsPage = () => {
                         to={`/patients/${patient.id}`}
                         className="inline-flex items-center justify-center rounded-full p-2 hover:bg-primary-50 hover:text-primary-700 transition"
                         title="View Details"
+                        onClick={() => console.log('PatientsPage: Navigating to patient detail with ID:', patient.id)}
                       >
                         <Eye className="h-5 w-5" />
                       </Link>

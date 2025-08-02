@@ -8,12 +8,44 @@ import Pagination from '../components/common/Pagination';
 import { usePatient, useAppointmentsByPatient, usePrescriptionsByPatient, useTreatmentsByPatient, useAmountsByPatient } from '../hooks/useApi';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import { usePageHeader } from '../hooks/usePageHeader';
 
 const ITEMS_PER_PAGE = 10;
 
 const PatientDetailPage = () => {
   const { id } = useParams<{ id: string }>();
-  const patientId = parseInt(id!); // Parse id once
+  
+  // Add comprehensive debugging
+  console.log('PatientDetailPage: URL params:', { id });
+  
+  if (!id) {
+    console.error('PatientDetailPage: No patient ID in URL params');
+    return (
+      <div className="flex h-64 flex-col items-center justify-center space-y-4">
+        <p className="text-lg text-error-500">Invalid patient ID in URL</p>
+        <Link to="/patients" className="btn btn-primary">
+          <ChevronLeft className="h-4 w-4 mr-2" />
+          Back to Patients List
+        </Link>
+      </div>
+    );
+  }
+  
+  const patientId = parseInt(id, 10);
+  console.log('PatientDetailPage: Parsed patient ID:', patientId);
+  
+  if (isNaN(patientId) || patientId <= 0) {
+    console.error('PatientDetailPage: Invalid patient ID:', patientId);
+    return (
+      <div className="flex h-64 flex-col items-center justify-center space-y-4">
+        <p className="text-lg text-error-500">Invalid patient ID: {id}</p>
+        <Link to="/patients" className="btn btn-primary">
+          <ChevronLeft className="h-4 w-4 mr-2" />
+          Back to Patients List
+        </Link>
+      </div>
+    );
+  }
 
   const [isEditing, setIsEditing] = useState(false);
   const [showPrescriptionForm, setShowPrescriptionForm] = useState(false);
@@ -34,11 +66,20 @@ const PatientDetailPage = () => {
   const { user } = useAuth();
 
   // Fetch all necessary data using useApi hooks
+  console.log('PatientDetailPage: About to call usePatient with ID:', patientId);
   const { data: patient, isLoading: isLoadingPatient, error: patientError, refetch: refetchPatient } = usePatient(patientId);
+  console.log('PatientDetailPage: usePatient result:', { patient, isLoadingPatient, patientError });
+  
   const { data: appointments = [], isLoading: isLoadingAppointments, refetch: refetchAppointments } = useAppointmentsByPatient(patientId);
   const { data: prescriptions = [], isLoading: isLoadingPrescriptions, refetch: refetchPrescriptions } = usePrescriptionsByPatient(patientId);
   const { data: treatments = [], isLoading: isLoadingTreatments, refetch: refetchTreatments } = useTreatmentsByPatient(patientId);
   const { data: amounts = [], isLoading: isLoadingAmounts, refetch: refetchAmounts } = useAmountsByPatient(patientId);
+
+  // Set page header
+  usePageHeader({
+    title: patient ? `${patient.firstName} ${patient.lastName}` : 'Patient Details',
+    subtitle: patient ? `Patient ID: ${patient.id}` : 'Loading patient information...',
+  });
 
   // Pagination for appointments
   const sortedAppointments = [...appointments].sort((a, b) => {
@@ -156,7 +197,16 @@ const PatientDetailPage = () => {
     return appointmentDate.getTime() === today.getTime();
   };
 
-  // --- Render Loading/Error States First ---
+  // Debug current state
+  console.log('PatientDetailPage: Current state:', {
+    patientId,
+    isLoadingPatient,
+    patientError: patientError?.message,
+    patient: patient ? { id: patient.id, firstName: patient.firstName, lastName: patient.lastName } : null,
+    hasPatientData: !!patient
+  });
+
+  // Loading state
   if (isLoadingPatient) {
     console.log('PatientDetailPage: Loading patient...');
     return (
@@ -169,11 +219,13 @@ const PatientDetailPage = () => {
     );
   }
 
+  // Error state
   if (patientError) {
     console.log('PatientDetailPage: Patient error:', patientError);
     return (
       <div className="flex h-64 flex-col items-center justify-center space-y-4">
         <p className="text-lg text-error-500">Error loading patient: {patientError.message}</p>
+        <p className="text-sm text-neutral-500">Patient ID: {patientId}</p>
         <Link to="/patients" className="btn btn-primary">
           <ChevronLeft className="h-4 w-4 mr-2" />
           Back to Patients List
@@ -182,12 +234,13 @@ const PatientDetailPage = () => {
     );
   }
 
-  // Check if patient exists and is not null/undefined
-  if (!patient || !patient.id) {
-    console.log('PatientDetailPage: Patient not found or invalid:', patient);
+  // Patient not found state - only show this if we're not loading and have no patient data
+  if (!patient) {
+    console.log('PatientDetailPage: No patient data received');
     return (
       <div className="flex h-64 flex-col items-center justify-center space-y-4">
-        <p className="text-lg text-error-500">Patient not found.</p>
+        <p className="text-lg text-error-500">Patient not found</p>
+        <p className="text-sm text-neutral-500">Patient ID: {patientId}</p>
         <Link to="/patients" className="btn btn-primary">
           <ChevronLeft className="h-4 w-4 mr-2" />
           Back to Patients List
@@ -196,7 +249,12 @@ const PatientDetailPage = () => {
     );
   }
 
-  console.log('PatientDetailPage: Rendering patient details for:', patient);
+  // At this point, we have patient data - log it and render
+  console.log('PatientDetailPage: Rendering patient details for:', {
+    id: patient.id,
+    name: `${patient.firstName} ${patient.lastName}`,
+    email: patient.email
+  });
 
   // Once patient data is confirmed, proceed with rendering the details
   const prescriptionsByAppointment = prescriptions.reduce((acc, prescription) => {
@@ -222,6 +280,7 @@ const PatientDetailPage = () => {
             <h2 className="text-xl font-semibold text-neutral-900">
               {patient.firstName} {patient.lastName}
             </h2>
+            <p className="text-sm text-neutral-500">Patient ID: {patient.id}</p>
             <div className="flex flex-wrap items-center text-sm text-neutral-500">
               <div className="mr-4 flex items-center">
                 <Mail className="mr-1 h-4 w-4" />

@@ -126,8 +126,17 @@ export const patients = {
   getById: async (id: number) => {
     try {
       console.log('API: Fetching patient with id:', id);
+      
+      // Validate ID before making request
+      if (!id || isNaN(id) || id <= 0) {
+        console.error('API: Invalid patient ID provided:', id);
+        throw new Error('Invalid patient ID');
+      }
+      
       const response = await api.get(`/patients/${id}`);
       console.log('API: Patient response data:', response.data);
+      console.log('API: Response status:', response.status);
+      console.log('API: Full response:', response);
       
       if (!response.data) {
         console.log('API: No data in response, throwing error');
@@ -136,11 +145,21 @@ export const patients = {
       
       return response.data;
     } catch (error: any) {
+      console.error('API: Error in getById:', error);
+      console.error('API: Error response:', error.response);
+      console.error('API: Error status:', error.response?.status);
+      console.error('API: Error data:', error.response?.data);
+      
       if (error.response?.status === 404) {
         console.log('API: Patient not found (404)');
         throw new Error('Patient not found');
       }
-      console.error('Error fetching patient:', error);
+      
+      if (error.response?.status === 500) {
+        console.log('API: Server error (500)');
+        throw new Error('Server error - please try again');
+      }
+      
       throw new Error(error.response?.data?.message || 'Failed to fetch patient');
     }
   },

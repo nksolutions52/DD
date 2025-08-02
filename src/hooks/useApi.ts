@@ -167,6 +167,7 @@ export function usePatients() {
 
 export function usePatient(id: number) {
   return useApi(async () => {
+    console.log('usePatient: Called with ID:', id);
     try {
       const response = await api.patients.getById(id);
       console.log('usePatient: API response for id', id, ':', response);
@@ -176,7 +177,7 @@ export function usePatient(id: number) {
       throw error;
     }
   }, {
-    enableCache: true,
+    enableCache: false, // Disable cache for debugging
     cacheKey: `patient-${id}`,
   });
 }
