@@ -2,8 +2,8 @@ import axios from 'axios';
 import { PageRequest, PageResponse } from '../types';
 
 const api = axios.create({
-  // baseURL: 'http://localhost:8080/api',
-  baseURL: 'https://dd-production-97ad.up.railway.app/api',
+  baseURL: 'http://localhost:8080/api',
+  // baseURL: 'https://dd-production-97ad.up.railway.app/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -17,7 +17,7 @@ api.interceptors.request.use(
     config.headers['Access-Control-Allow-Origin'] = 'http://localhost:5173';
     config.headers['Access-Control-Allow-Credentials'] = 'true';
     // Add production frontend URL for CORS
-    config.headers['Access-Control-Allow-Origin'] = 'https://dd-three-liart.vercel.app';
+    // config.headers['Access-Control-Allow-Origin'] = 'https://dd-three-liart.vercel.app';
     return config;
   },
   (error) => {
@@ -71,7 +71,7 @@ export const roles = {
 };
 
 export const users = {
-  getAll: async (pageRequest?: PageRequest): Promise<PageResponse<any> | any[]> => {
+  getAll: async (pageRequest?: PageRequest, options?: { signal?: AbortSignal }): Promise<PageResponse<any> | any[]> => {
     if (pageRequest) {
       const params = new URLSearchParams({
         page: pageRequest.page.toString(),
@@ -80,10 +80,10 @@ export const users = {
         ...(pageRequest.sortDirection && { sortDirection: pageRequest.sortDirection }),
         ...(pageRequest.search && { search: pageRequest.search }),
       });
-      const response = await api.get(`/users?${params}`);
+      const response = await api.get(`/users?${params}`, { signal: options?.signal }); // Pass signal here
       return response.data;
     }
-    const response = await api.get('/users');
+    const response = await api.get('/users', { signal: options?.signal }); // Pass signal here
     return response.data;
   },
   getDentists: async () => {
@@ -108,7 +108,7 @@ export const users = {
 };
 
 export const patients = {
-  getAll: async (pageRequest?: PageRequest): Promise<PageResponse<any> | any[]> => {
+  getAll: async (pageRequest?: PageRequest, options?: { signal?: AbortSignal }): Promise<PageResponse<any> | any[]> => {
     if (pageRequest) {
       const params = new URLSearchParams({
         page: pageRequest.page.toString(),
@@ -117,15 +117,44 @@ export const patients = {
         ...(pageRequest.sortDirection && { sortDirection: pageRequest.sortDirection }),
         ...(pageRequest.search && { search: pageRequest.search }),
       });
-      const response = await api.get(`/patients?${params}`);
+      const response = await api.get(`/patients?${params}`, { signal: options?.signal }); // Pass signal here
       return response.data;
     }
-    const response = await api.get('/patients');
+    const response = await api.get('/patients', { signal: options?.signal }); // Pass signal here
     return response.data;
   },
   getById: async (id: number) => {
-    const response = await api.get(`/patients/${id}`);
-    return response.data;
+    try {
+      console.log('API: Fetching patient with id:', id);
+      const response = await api.get(`/patients/${id}`);
+      console.log('API: Raw response:', response);
+      
+      if (!response.data) {
+        console.log('API: No data in response');
+        return null;
+      }
+      
+      // If response.data is an array with data, return the first item
+      if (Array.isArray(response.data)) {
+        console.log('API: Response is array:', response.data);
+        return response.data.length > 0 ? response.data[0] : null;
+      }
+      
+      // If response.data is a non-empty object, return it
+      if (typeof response.data === 'object') {
+        console.log('API: Response is object:', response.data);
+        return Object.keys(response.data).length > 0 ? response.data : null;
+      }
+      
+      console.log('API: Unknown response format');
+      return null;
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        return null;
+      }
+      console.error('Error fetching patient:', error);
+      throw new Error(error.response?.data?.message || 'Failed to fetch patient');
+    }
   },
   create: async (patient: any) => {
     const response = await api.post('/patients', patient);
@@ -156,7 +185,7 @@ export const patients = {
 };
 
 export const appointments = {
-  getAll: async (pageRequest?: PageRequest): Promise<PageResponse<any> | any[]> => {
+  getAll: async (pageRequest?: PageRequest, options?: { signal?: AbortSignal }): Promise<PageResponse<any> | any[]> => {
     console.log('API: appointments.getAll called with:', pageRequest);
     if (pageRequest) {
       const params = new URLSearchParams({
@@ -167,12 +196,12 @@ export const appointments = {
         ...(pageRequest.search && { search: pageRequest.search }),
       });
       console.log('API: Making paginated request to /appointments with params:', params.toString());
-      const response = await api.get(`/appointments?${params}`);
+      const response = await api.get(`/appointments?${params}`, { signal: options?.signal }); // Pass signal here
       console.log('API: Received paginated appointments response:', response.data);
       return response.data;
     }
     console.log('API: Making non-paginated request to /appointments');
-    const response = await api.get('/appointments');
+    const response = await api.get('/appointments', { signal: options?.signal }); // Pass signal here
     console.log('API: Received non-paginated appointments response:', response.data);
     return response.data;
   },
@@ -210,7 +239,7 @@ export const appointments = {
 };
 
 export const medicines = {
-  getAll: async (pageRequest?: PageRequest): Promise<PageResponse<any> | any[]> => {
+  getAll: async (pageRequest?: PageRequest, options?: { signal?: AbortSignal }): Promise<PageResponse<any> | any[]> => {
     if (pageRequest) {
       const params = new URLSearchParams({
         page: pageRequest.page.toString(),
@@ -219,10 +248,10 @@ export const medicines = {
         ...(pageRequest.sortDirection && { sortDirection: pageRequest.sortDirection }),
         ...(pageRequest.search && { search: pageRequest.search }),
       });
-      const response = await api.get(`/medicines?${params}`);
+      const response = await api.get(`/medicines?${params}`, { signal: options?.signal }); // Pass signal here
       return response.data;
     }
-    const response = await api.get('/medicines');
+    const response = await api.get('/medicines', { signal: options?.signal }); // Pass signal here
     return response.data;
   },
   search: async (query: string) => {

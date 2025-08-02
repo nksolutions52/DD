@@ -17,13 +17,31 @@ const PatientsPage = () => {
     setPage,
     setSearch,
     refetch,
-  } = usePaginatedApi((pageRequest: PageRequest) => api.patients.getAll(pageRequest), {
-    initialPageSize: 10,
-    initialSortBy: 'firstName',
-    initialSortDirection: 'asc',
-    enableCache: true,
-    cacheKey: 'patients',
-  });
+  } = usePaginatedApi(
+    async (pageRequest: PageRequest, options?: { signal?: AbortSignal }) => {
+      const result = await api.patients.getAll(pageRequest, options);
+      if (Array.isArray(result)) {
+        return {
+          content: result,
+          page: 0,
+          totalPages: 1,
+          totalElements: result.length,
+          size: result.length,
+          first: true,
+          last: true,
+          empty: result.length === 0,
+        };
+      }
+      return result;
+    },
+    {
+      initialPageSize: 10,
+      initialSortBy: 'firstName',
+      initialSortDirection: 'asc',
+      enableCache: true,
+      cacheKey: 'patients',
+    }
+  );
 
   const [showForm, setShowForm] = useState(false);
 

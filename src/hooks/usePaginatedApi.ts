@@ -40,6 +40,7 @@ export function usePaginatedApi<T>(
   const lastRequestIdRef = useRef<string>('');
 
   useEffect(() => {
+    isMountedRef.current = true;
     return () => {
       isMountedRef.current = false;
       if (abortControllerRef.current) {

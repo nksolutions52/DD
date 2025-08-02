@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Calendar, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
-import { format, addMonths, subMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, isSameMonth, isSameDay } from 'date-fns';
+import { format, addMonths, subMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, isSameDay } from 'date-fns';
 import { Appointment, CalendarViewType } from '../types';
 import AppointmentForm from '../components/appointments/AppointmentForm';
-import { useAppointmentsByDate, useAppointmentsByWeek, useAppointmentsByMonth } from '../hooks/useApi';
+import { useApi } from '../hooks/useApi';
 import { usePageHeader } from '../hooks/usePageHeader';
 import api from '../services/api';
 import { Link } from 'react-router-dom';
@@ -13,60 +13,30 @@ const CalendarPage = () => {
   const [viewType, setViewType] = useState<CalendarViewType>('month');
   const [showForm, setShowForm] = useState(false);
   
-  // Get appointments based on view type
+  // Only call the relevant API for the current view type
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth() + 1;
   const formattedDate = format(currentDate, 'yyyy-MM-dd');
-  
-  const {
-    data: monthAppointments = [],
-    isLoading: isLoadingMonth,
-    error: monthError,
-    refetch: refetchMonth
-  } = useAppointmentsByMonth(year, month);
 
-  const {
-    data: weekAppointments = [],
-    isLoading: isLoadingWeek,
-    error: weekError,
-    refetch: refetchWeek
-  } = useAppointmentsByWeek(formattedDate);
-
-  const {
-    data: dayAppointments = [],
-    isLoading: isLoadingDay,
-    error: dayError,
-    refetch: refetchDay
-  } = useAppointmentsByDate(formattedDate);
-
-  // Get appointments based on current view
-  const appointments = viewType === 'month' 
-    ? monthAppointments 
-    : viewType === 'week'
-    ? weekAppointments
-    : dayAppointments;
-
-  const isLoading = viewType === 'month'
-    ? isLoadingMonth
-    : viewType === 'week'
-    ? isLoadingWeek
-    : isLoadingDay;
-
-  const error = viewType === 'month'
-    ? monthError
-    : viewType === 'week'
-    ? weekError
-    : dayError;
-
-  const refetch = () => {
+  const getAppointments = useCallback(() => {
     if (viewType === 'month') {
-      refetchMonth();
+      return api.appointments.getByMonth(year, month);
     } else if (viewType === 'week') {
-      refetchWeek();
+      return api.appointments.getByWeek(formattedDate);
     } else {
-      refetchDay();
+      return api.appointments.getByDate(formattedDate);
     }
-  };
+  }, [viewType, year, month, formattedDate]);
+
+  const {
+    data: appointments = [],
+    isLoading,
+    error,
+    refetch
+  } = useApi(getAppointments, {
+    cacheKey: `calendar-${viewType}-${year}-${month}-${formattedDate}`,
+    enableCache: false,
+  });
 
   // Set page header with actions
   usePageHeader({
@@ -94,6 +64,7 @@ const CalendarPage = () => {
   // Effect to refetch data when date or view changes
   useEffect(() => {
     refetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentDate, viewType]);
 
   const handleAddAppointment = async (appointment: Appointment) => {
@@ -149,7 +120,7 @@ const CalendarPage = () => {
       for (let i = 0; i < 7; i++) {
         const cloneDay = day;
         const formattedDate = format(cloneDay, 'yyyy-MM-dd');
-        const dayAppointments = appointments.filter(a => a.date === formattedDate);
+        const dayAppointments = appointments.filter((a: Appointment) => a.date === formattedDate);
 
         days.push(
           <div
@@ -262,14 +233,14 @@ const CalendarPage = () => {
           {/* Appointment slots for each day */}
           {weekDays.map((day) => {
             const dayAppointments = appointments.filter(
-              a => a.date === format(day, 'yyyy-MM-dd')
+              (a: Appointment) => a.date === format(day, 'yyyy-MM-dd')
             );
             return (
               <div key={day.toString()} className="min-w-[120px]">
                 {slots.map((slot, idx) => {
                   // Find appointments that start at this slot
                   const slotAppointments = dayAppointments.filter(
-                    a => a.startTime.slice(0, 5) === slot
+                    (a: Appointment) => a.startTime.slice(0, 5) === slot
                   );
                   return (
                     <div
@@ -278,7 +249,7 @@ const CalendarPage = () => {
                         isSameDay(day, new Date()) ? 'bg-primary-50' : ''
                       }`}
                     >
-                      {slotAppointments.map((appointment) => (
+                      {slotAppointments.map((appointment: Appointment) => (
                         <div
                           key={appointment.id}
                           className={`w-full rounded p-1 overflow-hidden text-white text-xs ${
@@ -318,7 +289,7 @@ const CalendarPage = () => {
     }
 
     const dayAppointments = appointments.filter(
-      a => a.date === format(currentDate, 'yyyy-MM-dd')
+      (a: Appointment) => a.date === format(currentDate, 'yyyy-MM-dd')
     );
 
     return (
@@ -331,7 +302,7 @@ const CalendarPage = () => {
         <div className="divide-y divide-neutral-200">
           {slots.map((slot) => {
             const appointment = dayAppointments.find(
-              a => a.startTime.slice(0, 5) === slot
+              (a: Appointment) => a.startTime.slice(0, 5) === slot
             );
             return (
               <div key={slot} className="flex p-3 hover:bg-neutral-50 transition-colors">
@@ -373,6 +344,7 @@ const CalendarPage = () => {
     );
   };
 
+  console.log('isLoading:', isLoading, 'appointments:', appointments);
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">

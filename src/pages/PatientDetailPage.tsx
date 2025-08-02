@@ -13,6 +13,8 @@ const ITEMS_PER_PAGE = 10;
 
 const PatientDetailPage = () => {
   const { id } = useParams<{ id: string }>();
+  const patientId = parseInt(id!); // Parse id once
+
   const [isEditing, setIsEditing] = useState(false);
   const [showPrescriptionForm, setShowPrescriptionForm] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -31,11 +33,12 @@ const PatientDetailPage = () => {
 
   const { user } = useAuth();
 
-  const { data: patient, isLoading: isLoadingPatient, error: patientError, refetch: refetchPatient } = usePatient(parseInt(id!));
-  const { data: appointments = [], isLoading: isLoadingAppointments, refetch: refetchAppointments } = useAppointmentsByPatient(parseInt(id!));
-  const { data: prescriptions = [], isLoading: isLoadingPrescriptions, refetch: refetchPrescriptions } = usePrescriptionsByPatient(parseInt(id!));
-  const { data: treatments = [], isLoading: isLoadingTreatments, refetch: refetchTreatments } = useTreatmentsByPatient(parseInt(id!));
-  const { data: amounts = [], isLoading: isLoadingAmounts, refetch: refetchAmounts } = useAmountsByPatient(parseInt(id!));
+  // Fetch all necessary data using useApi hooks
+  const { data: patient, isLoading: isLoadingPatient, error: patientError, refetch: refetchPatient } = usePatient(patientId);
+  const { data: appointments = [], isLoading: isLoadingAppointments, refetch: refetchAppointments } = useAppointmentsByPatient(patientId);
+  const { data: prescriptions = [], isLoading: isLoadingPrescriptions, refetch: refetchPrescriptions } = usePrescriptionsByPatient(patientId);
+  const { data: treatments = [], isLoading: isLoadingTreatments, refetch: refetchTreatments } = useTreatmentsByPatient(patientId);
+  const { data: amounts = [], isLoading: isLoadingAmounts, refetch: refetchAmounts } = useAmountsByPatient(patientId);
 
   // Pagination for appointments
   const sortedAppointments = [...appointments].sort((a, b) => {
@@ -54,7 +57,7 @@ const PatientDetailPage = () => {
 
   const handleUpdatePatient = async (updatedPatient: Patient) => {
     try {
-      await api.patients.update(parseInt(id!), updatedPatient);
+      await api.patients.update(patientId, updatedPatient);
       refetchPatient();
       setIsEditing(false);
     } catch (error) {
@@ -106,18 +109,15 @@ const PatientDetailPage = () => {
     }
   };
 
-  // --- Update handleEditPayment to prefill with latest amount ---
   const handleEditPayment = (appointment: Appointment) => {
     setSelectedAppointment(appointment);
-    // Find all amounts for this appointment
     const appointmentAmounts = amounts.filter(a => a.appointmentId === appointment.id);
-    // Get the latest amount by createdAt
     const latestAmount = appointmentAmounts.length > 0
       ? appointmentAmounts.reduce((a, b) =>
           new Date(a.createdAt) > new Date(b.createdAt) ? a : b
         )
       : null;
-    setPaymentAmount(latestAmount ? latestAmount.amount.toString() : '');
+    setPaymentAmount(latestAmount ? latestAmount.amount.toString() : '0'); // Ensure '0' for initial
     setPaymentType(latestAmount ? latestAmount.paymentType : 'cash');
     setShowPaymentModal(true);
   };
@@ -156,22 +156,44 @@ const PatientDetailPage = () => {
     return appointmentDate.getTime() === today.getTime();
   };
 
-  if (isLoadingPatient || isLoadingAppointments || isLoadingPrescriptions || isLoadingTreatments) {
+  // --- Render Loading/Error States First ---
+  if (isLoadingPatient) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <p className="text-lg text-neutral-500">Loading patient data...</p>
+        <div className="text-center">
+          <div className="spinner mx-auto mb-4"></div>
+          <p className="text-lg text-neutral-500">Loading patient data...</p>
+        </div>
       </div>
     );
   }
 
-  if (patientError || !patient) {
+  if (patientError) {
     return (
-      <div className="flex h-64 items-center justify-center">
-        <p className="text-lg text-error-500">Error loading patient: {patientError?.message || 'Patient not found'}</p>
+      <div className="flex h-64 flex-col items-center justify-center space-y-4">
+        <p className="text-lg text-error-500">Error loading patient: {patientError.message}</p>
+        <Link to="/patients" className="btn btn-primary">
+          <ChevronLeft className="h-4 w-4 mr-2" />
+          Back to Patients List
+        </Link>
       </div>
     );
   }
 
+  // This check should only happen AFTER loading is complete and no error occurred
+  if (!patient) {
+    return (
+      <div className="flex h-64 flex-col items-center justify-center space-y-4">
+        <p className="text-lg text-error-500">Patient not found.</p>
+        <Link to="/patients" className="btn btn-primary">
+          <ChevronLeft className="h-4 w-4 mr-2" />
+          Back to Patients List
+        </Link>
+      </div>
+    );
+  }
+
+  // Once patient data is confirmed, proceed with rendering the details
   const prescriptionsByAppointment = prescriptions.reduce((acc, prescription) => {
     if (!acc[prescription.appointmentId]) {
       acc[prescription.appointmentId] = [];
@@ -182,22 +204,12 @@ const PatientDetailPage = () => {
 
   return (
     <div className="slide-in">
-      {/* <div className="mb-6 flex items-center">
-        <Link to="/patients" className="mr-3 flex items-center text-sm text-neutral-500 hover:text-neutral-700">
-          <ChevronLeft className="h-4 w-4" />
-          Back to Patients
-        </Link>
-        <h1 className="text-2xl font-bold text-neutral-900">
-          {patient.firstName} {patient.lastName}
-        </h1>
-      </div> */}
-
       <div className="mb-6 flex flex-col justify-between space-y-4 md:flex-row md:items-center md:space-y-0">
         <div className="flex items-center">
-           <Link to="/patients" className="mr-3 flex items-center text-sm text-neutral-500 hover:text-neutral-700">
-          <ChevronLeft className="h-4 w-4" />
-          Back
-        </Link>
+          <Link to="/patients" className="mr-3 flex items-center text-sm text-neutral-500 hover:text-neutral-700">
+            <ChevronLeft className="h-4 w-4" />
+            Back
+          </Link>
           <div className="mr-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary-100 text-primary-600">
             <User className="h-8 w-8" />
           </div>
@@ -218,13 +230,6 @@ const PatientDetailPage = () => {
           </div>
         </div>
         <div className="flex space-x-3">
-          {/* <button
-            onClick={() => setShowPrescriptionForm(true)}
-            className="btn btn-primary flex items-center"
-          >
-            <Plus className="mr-1 h-4 w-4" />
-            Add Prescription
-          </button> */}
           <button
             onClick={() => setIsEditing(true)}
             className="btn btn-primary flex items-center"
@@ -257,7 +262,6 @@ const PatientDetailPage = () => {
           >
             Appointments
           </button>
-          {/* Move Treatments tab here */}
           <button
             onClick={() => setActiveTab('treatments')}
             className={`pb-4 text-xs sm:text-sm font-medium whitespace-nowrap ${
@@ -302,6 +306,13 @@ const PatientDetailPage = () => {
       </div>
 
       <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-3">
+        {(isLoadingAppointments || isLoadingPrescriptions || isLoadingTreatments || isLoadingAmounts) && (
+          <div className="fixed bottom-4 right-4 bg-white rounded-lg shadow-lg p-4 flex items-center space-x-2">
+            <div className="spinner w-4 h-4"></div>
+            <p className="text-sm text-neutral-600">Loading additional data...</p>
+          </div>
+        )}
+
         {activeTab === 'overview' && (
           <>
             <div className="rounded-2xl border border-neutral-200 bg-white shadow-xl p-6 lg:col-span-2">
@@ -469,12 +480,8 @@ const PatientDetailPage = () => {
                   </thead>
                   <tbody className="divide-y divide-neutral-200 bg-white">
                     {paginatedAppointments.map((appointment) => {
-                      // Find all amounts for this appointment
                       const appointmentAmounts = amounts.filter(a => a.appointmentId === appointment.id);
-                      // Calculate the total amount for this appointment
                       const totalAmount = appointmentAmounts.reduce((sum, a) => sum + (a.amount || 0), 0);
-
-                      // Check if logged in user is the dentist for this appointment
                       const isDentist = user && appointment.dentistId === user.id;
                       return (
                         <tr key={appointment.id} className="hover:bg-neutral-50 transition rounded-xl">
@@ -554,7 +561,6 @@ const PatientDetailPage = () => {
                                 <Pill className="h-5 w-5" />
                               </button>
                             )}
-                            {/* Treatment Icon */}
                             {(canAddPrescription(appointment) && isDentist) && (
                               <button
                                 onClick={() => {
@@ -585,7 +591,6 @@ const PatientDetailPage = () => {
                     })}
                   </tbody>
                 </table>
-                {/* Pagination */}
                 {sortedAppointments.length > 0 && totalPages > 1 && (
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-4 py-3">
                     <div>
@@ -616,6 +621,7 @@ const PatientDetailPage = () => {
             )}
           </div>
         )}
+
         {activeTab === 'treatments' && (
           <div className="rounded-2xl border border-neutral-200 bg-white shadow-xl p-6 lg:col-span-3">
             <h3 className="mb-6 text-lg font-semibold text-neutral-900">Treatment History</h3>
@@ -923,7 +929,6 @@ const PatientDetailPage = () => {
               </button>
               <button
                 onClick={async () => {
-                  // Call API to save treatment
                   if (selectedTreatmentAppointment && treatmentDescription.trim()) {
                     await handleAddTreatment({
                       appointmentId: selectedTreatmentAppointment.id,

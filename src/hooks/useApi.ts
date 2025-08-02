@@ -40,6 +40,7 @@ export function useApi<T>(
     
     // Prevent duplicate requests
     if (lastRequestRef.current === requestKey && !force) {
+      setIsLoading(false); // Ensure loading is false for duplicate requests
       return;
     }
     
@@ -70,7 +71,6 @@ export function useApi<T>(
       }
 
       console.log('Making API call for:', cacheKey);
-      
       if (isMountedRef.current) {
         setIsLoading(true);
         setError(null);
@@ -78,12 +78,9 @@ export function useApi<T>(
 
       const result = await apiFunction();
       console.log('API response received:', result);
-      
       if (isMountedRef.current) {
         setData(result);
         setError(null);
-        setIsLoading(false);
-        
         // Cache the result if enabled
         if (options.enableCache !== false) {
           apiCache.set(cacheKey, {
@@ -97,22 +94,26 @@ export function useApi<T>(
       if (err.name === 'AbortError') {
         return;
       }
-      
       console.error('API call failed:', err);
       if (isMountedRef.current) {
         const error = err instanceof Error ? err : new Error('An error occurred');
         setError(error);
-        setIsLoading(false);
         if (options.onError) {
           options.onError(error);
         }
+      }
+    } finally {
+      // Always set isLoading to false
+      if (isMountedRef.current) {
+        setIsLoading(false);
       }
     }
   }, [apiFunction, options]);
 
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return { data, error, isLoading, refetch: fetchData };
 }
@@ -160,7 +161,13 @@ export function usePatients() {
 }
 
 export function usePatient(id: number) {
-  return useApi(() => api.patients.getById(id), {
+  return useApi(async () => {
+    const response = await api.patients.getById(id);
+    if (Array.isArray(response) && response.length === 0) {
+      throw new Error('Patient not found');
+    }
+    return response;
+  }, {
     enableCache: true,
     cacheKey: `patient-${id}`,
   });
