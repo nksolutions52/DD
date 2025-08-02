@@ -96,6 +96,17 @@
   @apply mb-1 rounded-lg p-1 sm:p-2 text-xs font-medium text-white shadow-md hover:shadow-lg transition-all duration-200;
 }
 
+/* Modal backdrop improvements */
+.modal-backdrop {
+  @apply fixed inset-0 bg-black/60 backdrop-blur-md;
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+}
+
+.modal-content {
+  @apply bg-white border border-neutral-200;
+}
+
 /* Animations */
 .fade-in {
   animation: fadeIn 0.5s ease-in-out;
