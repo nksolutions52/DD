@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Calendar, ChevronLeft, Edit, Mail, Phone, User, Pill, IndianRupee, Plus, X, CheckCircle, ClipboardList } from 'lucide-react';
 import { Patient, Appointment, Prescription } from '../types';
@@ -108,14 +108,34 @@ const PatientDetailPage = () => {
 
   const handleAddPrescription = async (prescription: Prescription) => {
     try {
+      setIsProcessing(true);
       await api.prescriptions.create(prescription);
+      
+      // Switch to prescriptions tab to show new data
+      setActiveTab('prescriptions');
+      
+      // Initial refetch
       await refetchPrescriptions();
+      
+      // Close modal
       setShowPrescriptionForm(false);
       setSelectedAppointment(null);
+      
+      // Secondary refetch after a small delay to ensure data is updated
+      setTimeout(async () => {
+        await Promise.all([
+          refetchPrescriptions(),
+          refetchTreatments(),
+          refetchAppointments(),
+          refetchAmounts()
+        ]);
+      }, 500);
     } catch (error) {
       console.error('Failed to create prescription:', error);
+    } finally {
+      setIsProcessing(false);
     }
-  };
+  }
 
   const handlePayment = async () => {
     setPaymentError(null);
@@ -139,22 +159,31 @@ const PatientDetailPage = () => {
         amount: Number(paymentAmount),
         paymentType,
       });
+      // First refresh all related data
+      await Promise.all([
+        refetchAmounts(),
+        refetchTreatments(),
+        refetchAppointments(),
+        refetchPrescriptions()
+      ]);
+      // Force an additional refetch of amounts to ensure latest data
+      await refetchAmounts();
+      // Only close modal after data is refreshed
       setShowPaymentModal(false);
       setPaymentAmount('0');
       setPaymentType('cash');
-      await refetchAmounts();
     } catch (err) {
       setPaymentError('Failed to add payment');
     } finally {
       setIsProcessing(false);
     }
-  };
+  }
 
   const handleEditPayment = (appointment: Appointment) => {
     setSelectedAppointment(appointment);
-    const appointmentAmounts = amounts.filter(a => a.appointmentId === appointment.id);
+    const appointmentAmounts = amounts.filter((a: any) => a.appointmentId === appointment.id);
     const latestAmount = appointmentAmounts.length > 0
-      ? appointmentAmounts.reduce((a, b) =>
+      ? appointmentAmounts.reduce((a: any, b: any) =>
           new Date(a.createdAt) > new Date(b.createdAt) ? a : b
         )
       : null;
@@ -169,6 +198,14 @@ const PatientDetailPage = () => {
         ...appointment,
         status: 'completed',
       });
+      // Refresh all related data
+      await Promise.all([
+        refetchAppointments(),
+        refetchTreatments(),
+        refetchPrescriptions(),
+        refetchAmounts()
+      ]);
+      // Force an additional refetch of appointments
       await refetchAppointments();
     } catch (error) {
       console.error('Failed to update appointment status:', error);
@@ -182,12 +219,37 @@ const PatientDetailPage = () => {
 
   const handleAddTreatment = async (treatment: { appointmentId: number; description: string }) => {
     try {
+      setIsProcessing(true);
       await api.treatments.create(treatment);
+      
+      // Switch to treatments tab to show new data
+      setActiveTab('treatments');
+      
+      // Initial refetch
       await refetchTreatments();
+      
+      // Close modal
+      setShowTreatmentForm(false);
+      setSelectedTreatmentAppointment(null);
+      setTreatmentDescription('');
+      
+      // Secondary refetch after a small delay to ensure data is updated
+      setTimeout(async () => {
+        await Promise.all([
+          refetchTreatments(),
+          refetchAppointments(),
+          refetchPrescriptions(),
+          refetchAmounts()
+        ]);
+      }, 500);
     } catch (error) {
       console.error('Failed to create treatment:', error);
+    } finally {
+      setIsProcessing(false);
     }
-  };
+  }
+
+  // ...existing code...
 
   const canAddPrescription = (appointment: Appointment) => {
     const appointmentDate = new Date(appointment.date);
@@ -1001,11 +1063,9 @@ const PatientDetailPage = () => {
                       appointmentId: selectedTreatmentAppointment.id,
                       description: treatmentDescription,
                     });
-                    setShowTreatmentForm(false);
-                    setSelectedTreatmentAppointment(null);
-                    setTreatmentDescription('');
                   }
                 }}
+                disabled={isProcessing}
                 className="btn btn-primary"
               >
                 Submit

@@ -43,6 +43,7 @@ const PharmacyPOSPage = () => {
   const [showStockAlert, setShowStockAlert] = useState(false);
   const [stockAlertMessage, setStockAlertMessage] = useState('');
   const [showSaleSuccessDialog, setShowSaleSuccessDialog] = useState(false);
+  const [pendingClear, setPendingClear] = useState(false);
   const [showAlertDialog, setShowAlertDialog] = useState(false);
   const [alertConfig, setAlertConfig] = useState<{
     type: 'success' | 'error' | 'warning' | 'info';
@@ -232,58 +233,14 @@ const PharmacyPOSPage = () => {
     return total - (discount || 0);
   };
 
-  const handleCompleteSale = async () => {
+  const handleCompleteSale = () => {
     if (isProcessing || saleItems.length === 0 || !customer) {
       if (!customer) {
         setCustomerError('Please enter customer details before completing sale');
       }
       return;
     }
-
-    try {
-      setIsProcessing(true);
-
-      const subtotal = calculateSubtotal();
-      const sgst = calculateSGST();
-      const cgst = calculateCGST();
-      const total = calculateTotal();
-
-      const sale: PharmacySale = {
-        id: 0,
-        customerId: customer.id,
-        customerName: customer.name,
-        customerPhone: customer.phone,
-        items: saleItems.map((item): PharmacySaleItem => ({
-          medicineId: item.medicine.id,
-          medicineName: item.medicine.name,
-          quantity: item.quantity,
-          unitPrice: item.medicine.price,
-          totalPrice: item.medicine.price * item.quantity
-        })),
-        subtotal,
-        sgst,
-        cgst,
-        discount,
-        total,
-        createdAt: new Date().toISOString()
-      };
-
-      await api.pharmacySales.create(sale);
-
-      setSaleItems([]);
-      setDiscount(0);
-      setCustomer(null);
-      setPhoneSearch('');
-      setSearchResults([]);
-      setSearchTerm('');
-
-      setShowSaleSuccessDialog(true);
-    } catch (error) {
-      console.error('Failed to complete sale:', error);
-      showAlert('error', 'Sale Error', 'Failed to complete sale. Please try again.');
-    } finally {
-      setIsProcessing(false);
-    }
+    setShowSaleSuccessDialog(true); // Just open dialog
   };
 
   return (
@@ -644,12 +601,54 @@ const PharmacyPOSPage = () => {
       <ConfirmDialog
         isOpen={showSaleSuccessDialog}
         title="Sale Completed"
-        message="The sale was completed successfully."
+        message="Do you want to complete the sale?"
         confirmText="OK"
         cancelText="Cancel"
         type="info"
-        onConfirm={() => setShowSaleSuccessDialog(false)}
-        onCancel={() => setShowSaleSuccessDialog(false)} // Only close dialog, do not clear POS data
+        onConfirm={async () => {
+          setIsProcessing(true);
+          try {
+            const subtotal = calculateSubtotal();
+            const sgst = calculateSGST();
+            const cgst = calculateCGST();
+            const total = calculateTotal();
+            const sale: PharmacySale = {
+              id: 0,
+              customerId: customer!.id,
+              customerName: customer!.name,
+              customerPhone: customer!.phone,
+              items: saleItems.map((item): PharmacySaleItem => ({
+                medicineId: item.medicine.id,
+                medicineName: item.medicine.name,
+                quantity: item.quantity,
+                unitPrice: item.medicine.price,
+                totalPrice: item.medicine.price * item.quantity
+              })),
+              subtotal,
+              sgst,
+              cgst,
+              discount,
+              total,
+              createdAt: new Date().toISOString()
+            };
+            await api.pharmacySales.create(sale);
+            setSaleItems([]);
+            setDiscount(0);
+            setCustomer(null);
+            setPhoneSearch('');
+            setSearchResults([]);
+            setSearchTerm('');
+          } catch (error) {
+            console.error('Failed to complete sale:', error);
+            showAlert('error', 'Sale Error', 'Failed to complete sale. Please try again.');
+          } finally {
+            setIsProcessing(false);
+            setShowSaleSuccessDialog(false);
+          }
+        }}
+        onCancel={() => {
+          setShowSaleSuccessDialog(false);
+        }}
       />
 
       {/* Alert Dialog */}

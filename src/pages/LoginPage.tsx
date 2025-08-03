@@ -25,109 +25,86 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row items-stretch justify-center bg-gradient-to-br from-blue-100 via-indigo-100 to-white">
-      {/* Left: Logo and Welcome */}
-      <div className="hidden md:flex md:w-1/2 flex-col items-center justify-center p-6 md:p-10 bg-gradient-to-br from-primary-500 via-purple-500 to-accent-500 text-white relative">
-        <div className="absolute top-2 left-2 md:top-4 md:left-4 hidden md:block z-10">
-          <div className="flex items-center">
-            <img src="images/tooth-logo.svg" alt="Tooth Icon" className="h-10 w-10 md:h-16 md:w-16 drop-shadow-xl" />
-            <span className="text-xl md:text-3xl font-bold ml-2 text-white">K-Health</span>
-          </div>
+    <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-primary-50 via-blue-50 to-accent-50">
+      <div className="w-full max-w-md mx-auto p-4 sm:p-8">
+        <div className="flex flex-col items-center mb-8">
+          <img src="images/tooth-logo.svg" alt="K-Health Logo" className="h-16 w-16 mb-2 drop-shadow-xl" />
+          <h1 className="text-3xl font-extrabold text-primary-700 mb-1 tracking-tight">K-Health</h1>
+          <p className="text-base text-neutral-600 text-center max-w-xs">Welcome back! Please sign in to continue.</p>
         </div>
-        <div className="flex flex-col items-center justify-center flex-1 gap-6 mt-4 mb-4 md:mt-6 md:mb-6">
-          <h1 className="text-3xl md:text-5xl font-extrabold mb-2 tracking-tight">K-Health</h1>
-          <p className="text-lg md:text-2xl font-medium opacity-90 mb-4 text-center max-w-xs md:max-w-md">
-            Welcome Back!<br />
-            Log in to manage your appointments and patient records.
-          </p>
-        </div>
-        <div className="flex-1 flex items-end justify-center w-full pb-2 md:pb-0">
-          <img src="images/dental.svg" alt="Dental Illustration" className="w-32 h-32 sm:w-40 sm:h-40 md:w-72 md:h-72 lg:w-96 lg:h-96 opacity-80 max-h-[40vh] md:max-h-[60vh]" />
-        </div>
-      </div>
-      {/* Right: Login Form */}
-      <div className="w-full md:w-1/2 flex flex-col justify-between p-0 md:p-0 min-h-screen bg-transparent">
-        <div className="flex-1 flex items-center justify-center p-4 md:p-12">
-          <div className="md:hidden absolute top-4 left-4 flex items-center">
-            <img src="images/tooth-logo.svg" alt="Tooth Icon" className="h-10 w-10 drop-shadow-xl" />
-            <span className="text-xl font-bold ml-2 text-primary-600">K-Health</span>
-          </div>
-          <div className="w-full max-w-md bg-white/90 rounded-2xl shadow-xl p-6 md:p-10">
-            <h2 className="text-2xl font-bold text-blue-900 mb-8 text-center">Sign in to your account</h2>
-            {(loginError || error) && (
-              <div className="mb-4 rounded-md bg-red-100 p-3 text-sm text-red-700 text-center">
-                {loginError || error}
-              </div>
-            )}
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-blue-900 mb-1">
-                  Email Address
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-blue-200 bg-blue-50 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 text-blue-900 placeholder-blue-400"
-                  placeholder="name@example.com"
-                />
-              </div>
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-blue-900 mb-1">
-                  Password
-                </label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-blue-200 bg-blue-50 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 text-blue-900 placeholder-blue-400"
-                  placeholder="••••••••"
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <input
-                    id="remember-me"
-                    name="remember-me"
-                    type="checkbox"
-                    className="h-4 w-4 rounded border-blue-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <label htmlFor="remember-me" className="ml-2 text-sm text-blue-900">
-                    Remember me
-                  </label>
-                </div>
-                <a href="#" className="text-sm font-semibold text-blue-600 hover:text-blue-500">
-                  Forgot password?
-                </a>
-              </div>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="btn btn-primary text-white w-full py-3 rounded-xl font-bold shadow-lg hover:brightness-110 transition-all"
-              >
-                {isLoading ? 'Signing in...' : 'Sign In'}
-              </button>
-            </form>
-            <div className="mt-8 text-center text-xs text-blue-400">
-              Demo accounts:<br />
-              <span className="font-medium text-blue-700">Admin:</span> admin@example.com &nbsp;|&nbsp;
-              <span className="font-medium text-blue-700">Dentist:</span> dentist@example.com &nbsp;|&nbsp;
-              <span className="font-medium text-blue-700">Receptionist:</span> receptionist@example.com <br />
-              Password: <span className="font-mono">password123</span>
+        <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8">
+          <h2 className="text-xl font-bold text-primary-700 mb-6 text-center">Sign in to your account</h2>
+          {(loginError || error) && (
+            <div className="mb-4 rounded-lg bg-error-50 border border-error-200 p-3 text-sm text-error-700 text-center">
+              {loginError || error}
             </div>
-          </div>
+          )}
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-primary-700 mb-1">
+                Email Address
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="input w-full px-4 py-3 rounded-xl border border-primary-200 bg-primary-50 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 text-primary-900 placeholder-primary-400"
+                placeholder="name@example.com"
+              />
+            </div>
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-primary-700 mb-1">
+                Password
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="input w-full px-4 py-3 rounded-xl border border-primary-200 bg-primary-50 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 text-primary-900 placeholder-primary-400"
+                placeholder="••••••••"
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <input
+                  id="remember-me"
+                  name="remember-me"
+                  type="checkbox"
+                  className="h-4 w-4 rounded border-primary-300 text-primary-600 focus:ring-primary-500"
+                />
+                <label htmlFor="remember-me" className="ml-2 text-sm text-primary-700">
+                  Remember me
+                </label>
+              </div>
+              <a href="#" className="text-sm font-semibold text-primary-600 hover:text-primary-500">
+                Forgot password?
+              </a>
+            </div>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="btn btn-primary text-white w-full py-3 rounded-xl font-bold shadow-lg hover:brightness-110 transition-all"
+            >
+              {isLoading ? (
+                <span className="flex items-center justify-center"><span className="spinner mr-2"></span>Signing in...</span>
+              ) : (
+                'Sign In'
+              )}
+            </button>
+          </form>
         </div>
-        <div className="w-full">
-          <Footer />
-        </div>
+        {/* Optional: Demo info as tooltip or info icon, not in main UI */}
+      </div>
+      <div className="w-full mt-8">
+        <Footer />
       </div>
     </div>
   );

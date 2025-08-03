@@ -15,7 +15,15 @@ const PrescriptionForm = ({
   onCancel,
   appointment,
 }: PrescriptionFormProps) => {
-  const { data: medicines = [], isLoading: isLoadingMedicines, error: medicinesError } = useMedicines();
+  const { data = {}, isLoading: isLoadingMedicines, error: medicinesError } = useMedicines();
+  // Support both array and object response, and ensure 'data' is never null
+  const medicines: Medicine[] = Array.isArray(data)
+    ? data
+    : Array.isArray((data as any).medicines)
+      ? (data as any).medicines
+      : Array.isArray((data as any).content)
+        ? (data as any).content
+        : [];
   const [items, setItems] = useState<PrescriptionItem[]>([]);
   const [notes, setNotes] = useState('');
   const [errors, setErrors] = useState<string[]>([]);
@@ -43,7 +51,7 @@ const PrescriptionForm = ({
   const handleItemChange = (index: number, field: keyof PrescriptionItem, value: string | number) => {
     const newItems = [...items];
     if (field === 'medicineId') {
-      const medicine = medicines.find((m) => m.id === Number(value));
+      const medicine = medicines.find((m: Medicine) => m.id === Number(value));
       if (medicine) {
         newItems[index] = {
           ...newItems[index],
@@ -211,7 +219,7 @@ const PrescriptionForm = ({
                     disabled={isSubmitting}
                   >
                     <option value="">Select Medicine</option>
-                    {medicines.map((medicine) => (
+                    {Array.isArray(medicines) && medicines.map((medicine) => (
                       <option key={medicine.id} value={medicine.id}>
                         {medicine.name} ({medicine.type})
                       </option>
