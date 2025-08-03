@@ -21,10 +21,10 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
            "LOWER(p.lastName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            "LOWER(p.email) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            "p.phone LIKE CONCAT('%', :search, '%') OR " +
-           "CAST(p.id AS string) LIKE CONCAT('%', :search, '%'))")
+           "CAST(p.id AS text) LIKE CONCAT('%', :search, '%'))")
     Page<Patient> findPatientsWithSearch(@Param("search") String search, Pageable pageable);
 
-    @Query("SELECT p FROM Patient p WHERE LOWER(p.firstName) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(p.lastName) LIKE LOWER(CONCAT('%', :query, '%')) OR CAST(p.id AS string) LIKE CONCAT('%', :query, '%')")
+    @Query("SELECT p FROM Patient p WHERE LOWER(p.firstName) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(p.lastName) LIKE LOWER(CONCAT('%', :query, '%')) OR CAST(p.id AS text) LIKE CONCAT('%', :query, '%')")
     List<Patient> searchByNameOrId(@Param("query") String query);
 
     // Dashboard specific queries for optimized performance

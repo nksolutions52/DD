@@ -18,7 +18,7 @@ public class Role {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(columnDefinition = "JSON")
+    @Column(columnDefinition = "JSONB")
     private String permissions;
 
     @Column(name = "created_at", nullable = false)
