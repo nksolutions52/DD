@@ -40,7 +40,7 @@ export function useApi<T>(
     const cacheKey = options.cacheKey || apiFunction.toString();
     const requestKey = `${cacheKey}-${force}`;
     
-    // Prevent duplicate requests only if we've already initialized
+    // Prevent duplicate requests only if we've already initialized and not forcing
     if (lastRequestRef.current === requestKey && !force && hasInitializedRef.current) {
       console.log('Preventing duplicate request:', requestKey);
       return;
@@ -58,7 +58,7 @@ export function useApi<T>(
     const now = Date.now();
     
     try {
-      // Check cache first if enabled and not forced
+      // Check cache first if enabled and not forced and not first load
       if (options.enableCache !== false && !force && hasInitializedRef.current) {
         const cachedEntry = apiCache.get(cacheKey);
         if (cachedEntry && (now - cachedEntry.timestamp) < CACHE_DURATION) {
@@ -70,6 +70,12 @@ export function useApi<T>(
           }
           return;
         }
+      }
+
+      // Clear cache when forcing refresh
+      if (force && options.enableCache !== false) {
+        apiCache.delete(cacheKey);
+        console.log('Cache cleared for forced refresh:', cacheKey);
       }
 
       console.log('Making API call for:', cacheKey);
@@ -93,6 +99,7 @@ export function useApi<T>(
             data: result,
             timestamp: now,
           });
+          console.log('Data cached with timestamp:', now);
         }
         
         // Set loading to false after data is set
@@ -120,7 +127,14 @@ export function useApi<T>(
     fetchData();
   }, []);
 
-  return { data, error, isLoading, refetch: fetchData };
+  const refetch = useCallback((force = false) => {
+    console.log('Refetch called with force:', force);
+    // Clear the last request ID to allow refetch
+    lastRequestRef.current = '';
+    return fetchData(force);
+  }, [fetchData]);
+
+  return { data, error, isLoading, refetch };
 }
 
 export function useUsers() {

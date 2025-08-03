@@ -109,27 +109,24 @@ const PatientDetailPage = () => {
   const handleAddPrescription = async (prescription: Prescription) => {
     try {
       setIsProcessing(true);
-      await api.prescriptions.create(prescription);
+      const createdPrescription = await api.prescriptions.create(prescription);
+      console.log('Prescription created:', createdPrescription);
+      
+      // Close modal first
+      setShowPrescriptionForm(false);
+      setSelectedAppointment(null);
+      
+      // Force refresh all data immediately
+      await Promise.all([
+        refetchPrescriptions(true), // Force refresh
+        refetchTreatments(true),
+        refetchAppointments(true),
+        refetchAmounts(true)
+      ]);
       
       // Switch to prescriptions tab to show new data
       setActiveTab('prescriptions');
       
-      // Initial refetch
-      await refetchPrescriptions();
-      
-      // Close modal
-      setShowPrescriptionForm(false);
-      setSelectedAppointment(null);
-      
-      // Secondary refetch after a small delay to ensure data is updated
-      setTimeout(async () => {
-        await Promise.all([
-          refetchPrescriptions(),
-          refetchTreatments(),
-          refetchAppointments(),
-          refetchAmounts()
-        ]);
-      }, 500);
     } catch (error) {
       console.error('Failed to create prescription:', error);
     } finally {
@@ -153,25 +150,28 @@ const PatientDetailPage = () => {
 
     setIsProcessing(true);
     try {
-      await api.amounts.create({
+      const createdAmount = await api.amounts.create({
         appointmentId: selectedAppointment.id,
         patientId: selectedAppointment.patientId,
         amount: Number(paymentAmount),
         paymentType,
       });
-      // First refresh all related data
-      await Promise.all([
-        refetchAmounts(),
-        refetchTreatments(),
-        refetchAppointments(),
-        refetchPrescriptions()
-      ]);
-      // Force an additional refetch of amounts to ensure latest data
-      await refetchAmounts();
-      // Only close modal after data is refreshed
+      console.log('Payment created:', createdAmount);
+      
+      // Close modal first
       setShowPaymentModal(false);
       setPaymentAmount('0');
       setPaymentType('cash');
+      setSelectedAppointment(null);
+      
+      // Force refresh all data immediately
+      await Promise.all([
+        refetchAmounts(true), // Force refresh
+        refetchTreatments(true),
+        refetchAppointments(true),
+        refetchPrescriptions(true)
+      ]);
+      
     } catch (err) {
       setPaymentError('Failed to add payment');
     } finally {
@@ -194,19 +194,20 @@ const PatientDetailPage = () => {
 
   const handleMarkCompleted = async (appointment: Appointment) => {
     try {
-      await api.appointments.update(appointment.id, {
+      const updatedAppointment = await api.appointments.update(appointment.id, {
         ...appointment,
         status: 'completed',
       });
-      // Refresh all related data
+      console.log('Appointment completed:', updatedAppointment);
+      
+      // Force refresh all data immediately
       await Promise.all([
-        refetchAppointments(),
-        refetchTreatments(),
-        refetchPrescriptions(),
-        refetchAmounts()
+        refetchAppointments(true), // Force refresh
+        refetchTreatments(true),
+        refetchPrescriptions(true),
+        refetchAmounts(true)
       ]);
-      // Force an additional refetch of appointments
-      await refetchAppointments();
+      
     } catch (error) {
       console.error('Failed to update appointment status:', error);
     }
@@ -220,28 +221,25 @@ const PatientDetailPage = () => {
   const handleAddTreatment = async (treatment: { appointmentId: number; description: string }) => {
     try {
       setIsProcessing(true);
-      await api.treatments.create(treatment);
+      const createdTreatment = await api.treatments.create(treatment);
+      console.log('Treatment created:', createdTreatment);
       
-      // Switch to treatments tab to show new data
-      setActiveTab('treatments');
-      
-      // Initial refetch
-      await refetchTreatments();
-      
-      // Close modal
+      // Close modal first
       setShowTreatmentForm(false);
       setSelectedTreatmentAppointment(null);
       setTreatmentDescription('');
       
-      // Secondary refetch after a small delay to ensure data is updated
-      setTimeout(async () => {
-        await Promise.all([
-          refetchTreatments(),
-          refetchAppointments(),
-          refetchPrescriptions(),
-          refetchAmounts()
-        ]);
-      }, 500);
+      // Force refresh all data immediately
+      await Promise.all([
+        refetchTreatments(true), // Force refresh
+        refetchAppointments(true),
+        refetchPrescriptions(true),
+        refetchAmounts(true)
+      ]);
+      
+      // Switch to treatments tab to show new data
+      setActiveTab('treatments');
+      
     } catch (error) {
       console.error('Failed to create treatment:', error);
     } finally {

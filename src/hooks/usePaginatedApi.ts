@@ -234,6 +234,14 @@ export function usePaginatedApi<T>(
 
   const refetch = useCallback((force = false) => {
     console.log('Refetch called with force:', force);
+    
+    // Clear cache when forcing refresh
+    if (force && options.enableCache !== false) {
+      const cacheKey = getCacheKey(pageRequest);
+      paginationCache.delete(cacheKey);
+      console.log('Pagination cache cleared for forced refresh:', cacheKey);
+    }
+    
     // Clear the last request ID to allow refetch
     lastRequestIdRef.current = '';
     return fetchData(pageRequest, force);
