@@ -143,7 +143,8 @@ const UsersPage = () => {
         showAlert('success', 'Success', 'User created successfully!');
       }
       
-      await refetchUsers();
+      // Force immediate refresh to show new data
+      await refetchUsers(true);
       setShowForm(false);
       setFormData({
         name: '',
@@ -171,7 +172,8 @@ const UsersPage = () => {
 
     try {
       await api.users.delete(userToDelete.id);
-      await refetchUsers(true); // Force refresh to get latest data
+      // Force immediate refresh to show updated data
+      await refetchUsers(true);
       showAlert('success', 'Success', 'User deleted successfully!');
     } catch (error) {
       console.error('Failed to delete user:', error);

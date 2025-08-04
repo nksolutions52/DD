@@ -145,7 +145,7 @@ export function useApi<T>(
 
 export function useUsers() {
   return useApi(() => api.users.getAll() as Promise<any[]>, {
-    enableCache: false, // Disable cache for real-time updates
+    enableCache: false,
     cacheKey: 'users-all',
     initialData: [],
   });
@@ -153,7 +153,7 @@ export function useUsers() {
 
 export function useDentists() {
   return useApi(() => api.users.getDentists(), {
-    enableCache: false, // Disable cache for real-time updates
+    enableCache: false,
     cacheKey: 'dentists',
     initialData: [],
   });
@@ -161,14 +161,14 @@ export function useDentists() {
 
 export function useUser(id: number) {
   return useApi(() => api.users.getById(id), {
-    enableCache: false, // Disable cache for real-time updates
+    enableCache: false,
     cacheKey: `user-${id}`,
   });
 }
 
 export function useRoles() {
   return useApi(() => api.roles.getAll(), {
-    enableCache: false, // Disable cache for real-time updates
+    enableCache: false,
     cacheKey: 'roles',
     initialData: [],
   });
@@ -176,7 +176,7 @@ export function useRoles() {
 
 export function useRole(id: number) {
   return useApi(() => api.roles.getById(id), {
-    enableCache: false, // Disable cache for real-time updates
+    enableCache: false,
     cacheKey: `role-${id}`,
   });
 }

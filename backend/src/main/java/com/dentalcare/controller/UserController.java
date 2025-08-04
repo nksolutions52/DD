@@ -45,20 +45,31 @@ public class UserController {
 
     @PostMapping
     public User createUser(@RequestBody User user) {
-        return userService.createUser(user);
+        User createdUser = userService.createUser(user);
+        // Log for debugging
+        System.out.println("Created user: " + createdUser.getName() + " with role: " + createdUser.getRole());
+        return createdUser;
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
-        return userService.updateUser(id, user)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Optional<User> updatedUser = userService.updateUser(id, user);
+        if (updatedUser.isPresent()) {
+            // Log for debugging
+            System.out.println("Updated user: " + updatedUser.get().getName() + " with role: " + updatedUser.get().getRole());
+            return ResponseEntity.ok(updatedUser.get());
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        return userService.deleteUser(id)
-                ? ResponseEntity.ok().build()
-                : ResponseEntity.notFound().build();
+        boolean deleted = userService.deleteUser(id);
+        if (deleted) {
+            // Log for debugging
+            System.out.println("Deleted user with id: " + id);
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.notFound().build();
     }
 }

@@ -249,8 +249,11 @@ export function usePaginatedApi<T>(
       console.log('Cleared related cache entries:', keysToDelete.length);
     }
     
-    // Clear the last request ID to allow refetch
+    // Always clear the last request ID to allow immediate refetch
     lastRequestIdRef.current = '';
+    hasInitializedRef.current = false;
+    
+    // Clear the last request ID to allow refetch
     return fetchData(pageRequest, force);
   }, [fetchData, pageRequest]);
 

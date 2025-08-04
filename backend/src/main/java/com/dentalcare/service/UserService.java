@@ -52,7 +52,13 @@ public class UserService {
             Optional<Role> roleEntity = roleRepository.findByName(user.getRole());
             roleEntity.ifPresent(user::setRoleEntity);
         }
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        // Ensure the role entity is loaded for the response
+        if (savedUser.getRoleEntity() == null && savedUser.getRole() != null) {
+            Optional<Role> roleEntity = roleRepository.findByName(savedUser.getRole());
+            roleEntity.ifPresent(savedUser::setRoleEntity);
+        }
+        return savedUser;
     }
     
     public Optional<User> updateUser(Long id, User user) {
@@ -63,7 +69,13 @@ public class UserService {
                 Optional<Role> roleEntity = roleRepository.findByName(user.getRole());
                 roleEntity.ifPresent(user::setRoleEntity);
             }
-            return Optional.of(userRepository.save(user));
+            User savedUser = userRepository.save(user);
+            // Ensure the role entity is loaded for the response
+            if (savedUser.getRoleEntity() == null && savedUser.getRole() != null) {
+                Optional<Role> roleEntity = roleRepository.findByName(savedUser.getRole());
+                roleEntity.ifPresent(savedUser::setRoleEntity);
+            }
+            return Optional.of(savedUser);
         }
         return Optional.empty();
     }
