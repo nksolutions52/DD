@@ -18,7 +18,9 @@ const AlertDialog: React.FC<AlertDialogProps> = ({
   onClose,
   actionText = 'OK'
 }) => {
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   const getTypeConfig = () => {
     switch (type) {
@@ -57,8 +59,26 @@ const AlertDialog: React.FC<AlertDialogProps> = ({
   const IconComponent = config.icon;
 
   return (
-    <div className="modal-overlay">
-      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl border border-neutral-200">
+    <div 
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+      style={{
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+      }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
+      <div 
+        className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl border border-neutral-200 transform transition-all duration-200 ease-out"
+        style={{
+          animation: isOpen ? 'alertDialogIn 0.2s ease-out' : 'alertDialogOut 0.2s ease-in',
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
             <div className={`rounded-full p-2 ${config.bgColor} ${config.borderColor} border`}>
