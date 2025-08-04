@@ -129,6 +129,12 @@ export function useApi<T>(
 
   const refetch = useCallback((force = false) => {
     console.log('Refetch called with force:', force);
+    // Clear cache when forcing refresh
+    if (force && options.enableCache !== false) {
+      const cacheKey = options.cacheKey || apiFunction.toString();
+      apiCache.delete(cacheKey);
+      console.log('Cache cleared for forced refresh:', cacheKey);
+    }
     // Clear the last request ID to allow refetch
     lastRequestRef.current = '';
     return fetchData(force);
@@ -139,7 +145,7 @@ export function useApi<T>(
 
 export function useUsers() {
   return useApi(() => api.users.getAll() as Promise<any[]>, {
-    enableCache: true,
+    enableCache: false, // Disable cache for real-time updates
     cacheKey: 'users-all',
     initialData: [],
   });
@@ -147,7 +153,7 @@ export function useUsers() {
 
 export function useDentists() {
   return useApi(() => api.users.getDentists(), {
-    enableCache: true,
+    enableCache: false, // Disable cache for real-time updates
     cacheKey: 'dentists',
     initialData: [],
   });
@@ -155,14 +161,14 @@ export function useDentists() {
 
 export function useUser(id: number) {
   return useApi(() => api.users.getById(id), {
-    enableCache: true,
+    enableCache: false, // Disable cache for real-time updates
     cacheKey: `user-${id}`,
   });
 }
 
 export function useRoles() {
   return useApi(() => api.roles.getAll(), {
-    enableCache: true,
+    enableCache: false, // Disable cache for real-time updates
     cacheKey: 'roles',
     initialData: [],
   });
@@ -170,7 +176,7 @@ export function useRoles() {
 
 export function useRole(id: number) {
   return useApi(() => api.roles.getById(id), {
-    enableCache: true,
+    enableCache: false, // Disable cache for real-time updates
     cacheKey: `role-${id}`,
   });
 }
@@ -242,7 +248,7 @@ export function useAppointmentsByPatient(patientId: number) {
 
 export function useMedicines() {
   return useApi(() => api.medicines.getAll() as Promise<any[]>, {
-    enableCache: true,
+    enableCache: false, // Disable cache for real-time updates
     cacheKey: 'medicines-all',
     initialData: [],
   });
@@ -250,7 +256,7 @@ export function useMedicines() {
 
 export function useMedicine(id: number) {
   return useApi(() => api.medicines.getById(id), {
-    enableCache: true,
+    enableCache: false, // Disable cache for real-time updates
     cacheKey: `medicine-${id}`,
   });
 }
@@ -320,6 +326,23 @@ export function useAmountsByPatient(patientId: number) {
   return useApi(() => api.amounts.getByPatientId(patientId), {
     enableCache: true,
     cacheKey: `amounts-patient-${patientId}`,
+    initialData: [],
+  });
+}
+
+// Add hooks for manufacturers and medicine types
+export function useManufacturers() {
+  return useApi(() => api.manufacturers.getAll(), {
+    enableCache: false, // Disable cache for real-time updates
+    cacheKey: 'manufacturers-all',
+    initialData: [],
+  });
+}
+
+export function useMedicineTypes() {
+  return useApi(() => api.medicineTypes.getAll(), {
+    enableCache: false, // Disable cache for real-time updates
+    cacheKey: 'medicine-types-all',
     initialData: [],
   });
 }

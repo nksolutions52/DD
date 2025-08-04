@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Medicine } from '../../types'; // Adjust the import path as needed
-import { useApi } from '../../hooks/useApi';
+import { useManufacturers, useMedicineTypes } from '../../hooks/useApi';
 import api from '../../services/api';
 
 interface MedicineFormProps {
@@ -25,8 +25,8 @@ const MedicineForm = ({ medicine, onSubmit, onCancel }: MedicineFormProps) => {
   const [errors, setErrors] = useState<Partial<Record<keyof Medicine, string>>>({});
 
   // Fetch manufacturers and medicine types
-  const { data: manufacturers } = useApi(() => api.manufacturers.getAll());
-  const { data: medicineTypes } = useApi(() => api.medicineTypes.getAll());
+  const { data: manufacturers } = useManufacturers();
+  const { data: medicineTypes } = useMedicineTypes();
   const safeManufacturers = Array.isArray(manufacturers) ? manufacturers : [];
   const safeMedicineTypes = Array.isArray(medicineTypes) ? medicineTypes : [];
 

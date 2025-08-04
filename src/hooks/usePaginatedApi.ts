@@ -240,6 +240,13 @@ export function usePaginatedApi<T>(
       const cacheKey = getCacheKey(pageRequest);
       paginationCache.delete(cacheKey);
       console.log('Pagination cache cleared for forced refresh:', cacheKey);
+      
+      // Also clear all related cache entries
+      const keysToDelete = Array.from(paginationCache.keys()).filter(key => 
+        key.startsWith(options.cacheKey || 'paginated-data')
+      );
+      keysToDelete.forEach(key => paginationCache.delete(key));
+      console.log('Cleared related cache entries:', keysToDelete.length);
     }
     
     // Clear the last request ID to allow refetch

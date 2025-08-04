@@ -5,6 +5,7 @@ import ConfirmDialog from '../components/common/ConfirmDialog';
 import AlertDialog from '../components/common/AlertDialog';
 import api from '../services/api';
 import { usePageHeader } from '../hooks/usePageHeader';
+import { useManufacturers, useMedicineTypes } from '../hooks/useApi';
 
 interface Manufacturer {
   id: number;
@@ -44,8 +45,8 @@ const ConfigurePage = () => {
   }>({ type: 'info', title: '', message: '' });
 
   // Fetch manufacturers and medicine types
-  const { data: manufacturers = [], isLoading: isLoadingManufacturers, refetch: refetchManufacturers } = useApi(() => api.manufacturers.getAll());
-  const { data: medicineTypes = [], isLoading: isLoadingMedicineTypes, refetch: refetchMedicineTypes } = useApi(() => api.medicineTypes.getAll());
+  const { data: manufacturers = [], isLoading: isLoadingManufacturers, refetch: refetchManufacturers } = useManufacturers();
+  const { data: medicineTypes = [], isLoading: isLoadingMedicineTypes, refetch: refetchMedicineTypes } = useMedicineTypes();
 
   const showAlert = (type: 'success' | 'error' | 'warning' | 'info', title: string, message: string) => {
     setAlertConfig({ type, title, message });
@@ -99,7 +100,7 @@ const ConfigurePage = () => {
         showAlert('success', 'Success', 'Manufacturer created successfully!');
       }
       
-      await refetchManufacturers();
+      await refetchManufacturers(true); // Force refresh to get latest data
       setShowManufacturerModal(false);
       setManufacturerName('');
       setEditingManufacturer(null);
@@ -130,7 +131,7 @@ const ConfigurePage = () => {
         showAlert('success', 'Success', 'Medicine type created successfully!');
       }
       
-      await refetchMedicineTypes();
+      await refetchMedicineTypes(true); // Force refresh to get latest data
       setShowMedicineTypeModal(false);
       setMedicineTypeName('');
       setEditingMedicineType(null);
@@ -153,11 +154,11 @@ const ConfigurePage = () => {
     try {
       if (deleteConfig.type === 'manufacturer') {
         await api.manufacturers.delete(deleteConfig.id);
-        await refetchManufacturers();
+        await refetchManufacturers(true); // Force refresh to get latest data
         showAlert('success', 'Success', 'Manufacturer deleted successfully!');
       } else {
         await api.medicineTypes.delete(deleteConfig.id);
-        await refetchMedicineTypes();
+        await refetchMedicineTypes(true); // Force refresh to get latest data
         showAlert('success', 'Success', 'Medicine type deleted successfully!');
       }
     } catch (error) {
